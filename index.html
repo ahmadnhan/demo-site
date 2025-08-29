@@ -215,6 +215,10 @@
       storageBucket: '' // e.g. 'your-project-id.appspot.com'
       // messagingSenderId, appId optional
     };
+  // تفعيل الوضع السحابي فقط: لا حفظ محلي عند توافر Firebase
+  const ALWAYS_REMOTE = true; // نية المستخدم
+  // فعليًا نفعّل القيود السحابية فقط إذا Firebase تعمل
+  let REMOTE_ACTIVE = false; // سيُضبط بعد init
     let firebaseDb = null;
     function initFirebase(){
       try{
@@ -224,7 +228,49 @@
         return true;
       }catch(e){ console.warn('firebase init failed', e); return false; }
     }
-    const FIREBASE_ENABLED = initFirebase();
+  const FIREBASE_ENABLED = initFirebase();
+  REMOTE_ACTIVE = ALWAYS_REMOTE && FIREBASE_ENABLED;
+
+    // اشتراك فوري للبيانات السحابية
+    const itemIds = new Set();
+    function subscribeRemote(){
+      if(!FIREBASE_ENABLED){
+        uploadHint.textContent = 'الوضع السحابي مُفعل لكن إعدادات Firebase فارغة — املأ المفاتيح';
+        return;
+      }
+      firebaseDb.collection('shared_items').orderBy('updatedAt','desc').limit(500)
+        .onSnapshot(snap => {
+          snap.docChanges().forEach(ch => {
+            const data = ch.doc.data();
+            if(ch.type === 'removed'){
+              // إزالة من الواجهة والمصفوفة
+              const el = sharePreview.querySelector(`[data-id="${data.id}"]`);
+              if(el) el.remove();
+              itemIds.delete(data.id);
+              items = items.filter(x=> x.id !== data.id);
+            } else { // added or modified
+              if(!data.id) return;
+              if(!itemIds.has(data.id)){
+                itemIds.add(data.id);
+                items.push(data);
+                renderItem(data);
+              } else {
+                // تحديث بسيط: استبدال العنصر محليًا (بدون إعادة رسم مكثفة الآن)
+                items = items.map(x=> x.id===data.id? data : x);
+              }
+            }
+          });
+          uploadHint.textContent = `تمت مزامنة ${items.length} عنصر من السحابة`;
+        }, err => {
+          console.warn('remote subscribe error', err);
+          uploadHint.textContent = 'فشل الاشتراك السحابي';
+        });
+    }
+
+  if(REMOTE_ACTIVE) {
+      // سنشترك بعد تحميل الصفحة مباشرة
+      window.addEventListener('DOMContentLoaded', ()=> subscribeRemote());
+    }
 
     async function saveMetaToFirestore(it){
       if(!firebaseDb) return;
@@ -287,27 +333,24 @@
     let items = []; // persisted items
 
     function saveState(){
+  if(REMOTE_ACTIVE) return; // لا حفظ محلي في الوضع السحابي الفعّال
       try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
       catch(e){ console.warn('save failed', e); }
     }
 
     function loadState(){
+      if(ALWAYS_REMOTE && !FIREBASE_ENABLED){
+        uploadHint.textContent = 'Firebase غير مضبوط — سيتم الحفظ محليًا مؤقتًا';
+      } else if(REMOTE_ACTIVE){
+        uploadHint.textContent = 'جارٍ جلب العناصر من السحابة...';
+        return; // الاشتراك سيعالج الباقي
+      }
       try{
         const raw = localStorage.getItem(STORAGE_KEY);
         if(!raw) return;
         items = JSON.parse(raw) || [];
         items.forEach(it=> renderItem(it));
-        if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`;
-        // if firebase enabled, also load remote metadata and merge
-        if(FIREBASE_ENABLED){
-          (async ()=>{
-            const remote = await loadMetaFromFirestore();
-            // merge remote items (avoid duplicates by id)
-            const existingIds = new Set(items.map(x=>x.id));
-            remote.forEach(r=>{ if(!existingIds.has(r.id)){ items.push(r); renderItem(r); } });
-            uploadHint.textContent = `تحميل ${items.length} عنصر (محلي+سحابي)`;
-          })();
-        }
+        if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`;      
       }catch(e){ console.warn('load failed', e); }
     }
 
@@ -415,11 +458,20 @@
       const removeBtn = document.createElement('button');
       removeBtn.textContent = 'إزالة';
       removeBtn.className = 'btn';
-      removeBtn.addEventListener('click', ()=>{
+      removeBtn.addEventListener('click', async ()=>{
         wrapper.remove();
-        // also remove from persisted items if exists
         items = items.filter(x=> x.id !== it.id);
-        saveState();
+  if(REMOTE_ACTIVE){
+          try{
+            await firebaseDb.collection('shared_items').doc(it.id).delete();
+            if(it.storagePath){
+              try{ await firebase.storage().ref().child(it.storagePath).delete(); }catch(e){ console.warn('storage delete failed', e); }
+            }
+            uploadHint.textContent = 'تم حذف العنصر من السحابة';
+          }catch(e){ uploadHint.textContent = 'تعذر حذف السحابي'; }
+        } else {
+          saveState();
+        }
       });
       actions.appendChild(removeBtn);
 
@@ -432,16 +484,19 @@
       // obj: {kind:'file'|'link', name, url, type, dataUrl?}
       const it = Object.assign({id: makeId()}, obj);
       items.push(it);
-      saveState();
+  if(!REMOTE_ACTIVE) saveState();
   renderItem(it);
-  // also save metadata to firestore if enabled
-  if(FIREBASE_ENABLED){ saveMetaToFirestore(it); }
+  if(FIREBASE_ENABLED) saveMetaToFirestore(it); // نحفظ الميتاداتا متى توفرت Firebase
     }
 
     function handleFiles(files){
       if(!files || files.length === 0){ uploadHint.textContent = 'لم يتم اختيار ملفات'; return }
       uploadHint.textContent = `تم اختيار ${files.length} ملف`;
       Array.from(files).forEach(async (f)=>{
+        if(ALWAYS_REMOTE && !FIREBASE_ENABLED){
+          // السماح بالاستمرار محليًا
+          uploadHint.textContent = 'رفع محلي مؤقت (Firebase غير مضبوط)';
+        }
         // Prefer Firebase Storage upload if configured
         if(FIREBASE_ENABLED && FIREBASE.storageBucket){
           uploadHint.textContent = `جارٍ رفع ${f.name} إلى Firebase Storage...`;
@@ -470,7 +525,7 @@
         }
 
         // local fallback: persist small files as dataURL, or preview large ones
-        if(f.size <= MAX_PERSIST_BYTES){
+  if(!REMOTE_ACTIVE && f.size <= MAX_PERSIST_BYTES){
           const reader = new FileReader();
           reader.onload = (ev)=>{
             const dataUrl = ev.target.result;
@@ -478,7 +533,7 @@
             uploadHint.textContent = `تم حفظ ${f.name} محليًا`;
           };
           reader.readAsDataURL(f);
-        } else {
+  } else if(!REMOTE_ACTIVE) {
           const url = URL.createObjectURL(f);
           renderItem({id: makeId(), kind:'file', name: f.name, url, type: f.type});
           uploadHint.textContent = 'ملفات كبيرة لن تُحفظ محليًا، فقط معاينة مؤقتة';
