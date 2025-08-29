@@ -68,21 +68,6 @@
             
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
           </div>
-          <details style="margin-top:12px;border:1px solid #ddd;padding:8px;border-radius:8px;background:var(--card,#fafafa)">
-            <summary style="cursor:pointer;font-weight:600">إعداد المزامنة السحابية (Firebase)</summary>
-            <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
-              <small class="muted">املأ القيم أدناه (من إعدادات مشروع Firebase) ثم اضغط حفظ. بعد الحفظ تُفعّل المزامنة ويمكن فتح نفس الموقع من جهاز آخر لرؤية الملفات.</small>
-              <input id="fbApiKey" placeholder="apiKey" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
-              <input id="fbAuthDomain" placeholder="authDomain (مثال: project.firebaseapp.com)" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
-              <input id="fbProjectId" placeholder="projectId" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
-              <input id="fbBucket" placeholder="storageBucket (مثال: project.appspot.com)" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
-              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <button id="saveFbCfg" type="button" class="btn">حفظ الإعدادات</button>
-                <button id="clearFbCfg" type="button" class="btn" style="background:#b33">حذف الإعدادات</button>
-                <span id="cloudStatus" class="muted" style="font-size:13px">غير متصل بالسحابة</span>
-              </div>
-            </div>
-          </details>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
         </div>
       </section>
