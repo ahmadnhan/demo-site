@@ -228,7 +228,7 @@
     }
     uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
     try {
-      firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
+  firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
          const snapshotIds = [];
          snap.forEach(doc=>{
            const it = doc.data();
@@ -238,8 +238,8 @@
              renderItem(it, true); // أدخل العنصر الجديد أعلى القائمة
            }
          });
-         // إزالة العناصر التي لم تعد موجودة في السحابة
-         sharePreview.querySelectorAll('.preview-item').forEach(node=>{ if(!snapshotIds.includes(node.dataset.id)) node.remove(); });
+     // إزالة العناصر التي لم تعد موجودة (تجاهل العناصر المؤقتة temp أثناء الرفع)
+     sharePreview.querySelectorAll('.preview-item').forEach(node=>{ if(!snapshotIds.includes(node.dataset.id) && !node.dataset.temp) node.remove(); });
          // إعادة بناء مصفوفة العناصر بالترتيب
          items = [];
          snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
@@ -311,6 +311,29 @@
     });
   }
   function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`; }
+  function createUploadingPlaceholder(file){
+    const id = 'temp-'+makeId();
+    const wrapper = document.createElement('div');
+    wrapper.className='preview-item';
+    wrapper.dataset.id = id;
+    wrapper.dataset.temp = '1';
+    wrapper.style.cssText='padding:8px;border:1px dashed #64748b;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:10px;opacity:.7;background:rgba(148,163,184,0.08)';
+    // thumb
+    if(file && file.type && file.type.startsWith('image/')){
+      const img=document.createElement('img'); img.style.maxWidth='90px'; img.style.borderRadius='6px'; img.style.objectFit='cover'; img.alt='preview';
+      const url = URL.createObjectURL(file); img.src=url; wrapper.dataset.objUrl=url; wrapper.appendChild(img);
+    } else {
+      const icon=document.createElement('div'); icon.textContent = file.type && file.type.startsWith('video/')? '🎬' : '⏳'; icon.style.fontSize='40px'; wrapper.appendChild(icon);
+    }
+    const info=document.createElement('div'); info.style.flex='1';
+    info.innerHTML = `<div style="font-weight:600;font-size:14px;direction:ltr">${file.name}</div><div style="font-size:12px;color:#64748b">جاري الرفع...</div>`;
+    wrapper.appendChild(info);
+    const prog=document.createElement('div'); prog.style.cssText='width:80px;height:6px;border-radius:4px;background:#334155;overflow:hidden';
+    const bar=document.createElement('div'); bar.style.cssText='height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width .2s'; prog.appendChild(bar); wrapper.appendChild(prog);
+    wrapper._bar = bar;
+    if(sharePreview.firstChild) sharePreview.insertBefore(wrapper, sharePreview.firstChild); else sharePreview.appendChild(wrapper);
+    return {id, el:wrapper, setProgress:(p)=>{ bar.style.width=(p*100).toFixed(1)+'%'; }};
+  }
   function addAndPersistItem(obj){
     if(!CLOUD_ACTIVE){ uploadHint.textContent='غير ممكن بدون اتصال Firebase'; return; }
     const it = Object.assign({id: makeId()}, obj);
@@ -324,15 +347,20 @@
     if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; }
     if(!CLOUD_ACTIVE){ uploadHint.textContent='Firebase غير متصل (مطلوب)'; return; }
     Array.from(files).forEach(async f=>{
+      const placeholder = createUploadingPlaceholder(f);
       try {
         uploadHint.textContent = `رفع ${f.name}...`;
-        showProgress(); setProgress(0);
-        const res = await uploadFileToCloud(f, p=> setProgress(p));
+        const res = await uploadFileToCloud(f, p=> placeholder.setProgress(p));
         const meta = {kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path, id:res.id};
         addAndPersistItem(meta);
+        // إزالة العنصر المؤقت
+        if(placeholder.el && placeholder.el.parentNode){
+          // تحرير object URL
+          if(placeholder.el.dataset.objUrl){ try{ URL.revokeObjectURL(placeholder.el.dataset.objUrl); }catch(_e){} }
+          placeholder.el.remove();
+        }
         uploadHint.textContent = `تم رفع ${f.name}`;
       } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي'; const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Cloud upload failed: '+(e.message||e); } }
-      hideProgress();
     });
   }
 
