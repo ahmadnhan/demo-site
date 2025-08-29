@@ -16,6 +16,7 @@
         <h1>ديمو سايت</h1>
         <p class="tag" data-i18n="tagline">محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة</p>
       </div>
+      <!-- header controls: dark mode + language -->
       <div class="header-controls">
         <label class="hdr-switch" aria-label="الوضع الليلي"><input type="checkbox" id="darkToggle" /><span class="icon" aria-hidden="true">🌙</span></label>
         <select id="langSelect" aria-label="language">
@@ -47,6 +48,7 @@
       </div>
     </section>
 
+      <!-- New: file sharing card (ظهر قبل تواصل) -->
       <section id="share" class="section">
         <h2 style="text-align:center">مشاركة ملفات عبر الموقع</h2>
         <div class="card">
@@ -59,6 +61,7 @@
             </label>
             <input id="urlInput" type="url" placeholder="الصق رابط (صورة/فيديو/ميديا) وأضف" style="margin-inline-start:8px;padding:6px;border-radius:6px;border:1px solid var(--muted,#ccc)" />
             <button id="addUrlBtn" class="btn" style="margin-inline-start:6px">أضف رابط</button>
+            
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
           </div>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
@@ -78,27 +81,176 @@
     </section>
 
     <footer class="site-footer">
-      <div>© <span id="year"></span> <span class="site-name" data-i18n="site_name">ديمو سايت</span> — <span data-i18n="rights">جميع الحقوق محفوظة</span></div>
+  <div>© <span id="year"></span> <span class="site-name" data-i18n="site_name">ديمو سايت</span> — <span data-i18n="rights">جميع الحقوق محفوظة</span></div>
     </footer>
   </main>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Dark mode toggle + persistence
     const darkToggle = document.getElementById('darkToggle');
-    function setDark(on){ if(on) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); try{ localStorage.setItem('demo_dark', on ? '1' : '0') }catch(e){} darkToggle.checked = !!on; }
+    function setDark(on){
+      if(on) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      try{ localStorage.setItem('demo_dark', on ? '1' : '0') }catch(e){}
+      darkToggle.checked = !!on;
+    }
     darkToggle.addEventListener('change', (e)=> setDark(e.target.checked));
+    // restore theme from storage
     try{ if(localStorage.getItem('demo_dark') === '1') setDark(true) }catch(e){}
-    const i18n = { en:{tagline:'Portfolio & links — quick view of my projects',projects_h2:'Projects',project1_title:'My site links',project1_desc:'My demo sites',project2_title:'My apps',project2_desc:'Hijri/Gregorian date converter (downloadable).',app_converter_title:'Date converter app',contact_h2:'Contact',contact_text:'Place an email or contact form here.',site_name:'Demo Site',rights:'All rights reserved'}, ar:{tagline:'محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة',projects_h2:'المشاريع',project1_title:'روابط موقعي',project1_desc:'مواقع التجريبيه خاصه بي',project2_title:'تطبيقاتي',project2_desc:'محول تواريخ هجري/ميلادي (قابل للتحميل).',app_converter_title:'تطبيق تحويل تاريخ',contact_h2:'تواصل',contact_text:'يمكنك وضع إيميل أو نموذج تواصل هنا.',site_name:'ديمو سايت',rights:'جميع الحقوق محفوظة'} };
+
+    // Simple i18n
+    const i18n = {
+      en: {
+        tagline: 'Portfolio & links — quick view of my projects',
+        projects_h2: 'Projects',
+        project1_title: 'My site links',
+        project1_desc: 'My demo sites',
+        project2_title: 'My apps',
+        project2_desc: 'Hijri/Gregorian date converter (downloadable).',
+        app_converter_title: 'Date converter app',
+        contact_h2: 'Contact',
+        contact_text: 'Place an email or contact form here.',
+        site_name: 'Demo Site',
+        rights: 'All rights reserved'
+      },
+      ar: {
+        tagline: 'محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة',
+        projects_h2: 'المشاريع',
+        project1_title: 'روابط موقعي',
+        project1_desc: 'مواقع التجريبيه خاصه بي',
+        project2_title: 'تطبيقاتي',
+        project2_desc: 'محول تواريخ هجري/ميلادي (قابل للتحميل).',
+        app_converter_title: 'تطبيق تحويل تاريخ',
+        contact_h2: 'تواصل',
+        contact_text: 'يمكنك وضع إيميل أو نموذج تواصل هنا.',
+        site_name: 'ديمو سايت',
+        rights: 'جميع الحقوق محفوظة'
+      }
+    };
     const langSelect = document.getElementById('langSelect');
-    function applyLang(lang){ document.documentElement.lang = lang; document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr'; document.querySelectorAll('[data-i18n]').forEach(el=>{ const key = el.getAttribute('data-i18n'); if(i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key]; }); try{ localStorage.setItem('demo_lang', lang) }catch(e){} }
+    function applyLang(lang){
+      document.documentElement.lang = lang;
+      document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+      document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const key = el.getAttribute('data-i18n');
+        if(i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+      try{ localStorage.setItem('demo_lang', lang) }catch(e){}
+    }
     langSelect.addEventListener('change', ()=>applyLang(langSelect.value));
-    try{ const saved = localStorage.getItem('demo_lang'); if(saved){ langSelect.value = saved } }catch(e){}
+    try{
+      const saved = localStorage.getItem('demo_lang');
+      if(saved){ langSelect.value = saved }
+    }catch(e){}
     applyLang(langSelect.value);
+
+    // Reveal animations using IntersectionObserver
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(ent=>{
+        if(ent.isIntersecting) ent.target.classList.add('in-view');
+      });
+    },{threshold:0.12});
+    document.querySelectorAll('.card, .section').forEach(el=>{ el.classList.add('reveal'); io.observe(el) });
   </script>
+  
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
   <script src="firebase-config.js"></script>
-  <!-- simplified logic: omitted advanced sharing script for brevity here -->
+  <script>
+    // Advanced client-side preview for multiple files + links with local persistence
+    // Firebase/Firestore optional integration for cross-device metadata
+    const FIREBASE = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) ? window.FIREBASE_CONFIG : {
+      apiKey: '', authDomain: '', projectId: '', storageBucket: ''
+    };
+    const ALWAYS_REMOTE = true; // نية التشغيل السحابي إذا توفرت المفاتيح
+    let REMOTE_ACTIVE = false;
+    let firebaseDb = null;
+    function initFirebase(){
+      try{
+        if(!FIREBASE.apiKey || !FIREBASE.projectId) return false;
+        if(!firebase.apps.length) firebase.initializeApp(FIREBASE);
+        firebaseDb = firebase.firestore();
+        return true;
+      }catch(e){ console.warn('firebase init failed', e); return false; }
+    }
+    const FIREBASE_ENABLED = initFirebase();
+    REMOTE_ACTIVE = ALWAYS_REMOTE && FIREBASE_ENABLED;
+
+    // عناصر الواجهة
+    const fileInput = document.getElementById('fileInput');
+    const uploadHint = document.getElementById('uploadHint');
+    const sharePreview = document.getElementById('sharePreview');
+    const urlInput = document.getElementById('urlInput');
+    const addUrlBtn = document.getElementById('addUrlBtn');
+
+    const STORAGE_KEY = 'demo_share_items_v1';
+    const MAX_PERSIST_BYTES = 2 * 1024 * 1024; // 2MB
+    let items = [];
+
+    function makeId(){ return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
+
+    function saveState(){ if(REMOTE_ACTIVE) return; try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }catch(e){} }
+    function loadState(){
+      if(REMOTE_ACTIVE){ uploadHint.textContent = 'سيرفع إلى السحابة (أدخل إعدادات Firebase)'; return; }
+      try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ items = JSON.parse(raw)||[]; items.forEach(renderItem); if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`; } }catch(e){}
+    }
+
+    async function saveMetaToFirestore(it){
+      if(!firebaseDb) return; try{ await firebaseDb.collection('shared_items').doc(it.id).set(Object.assign({}, it, {updatedAt: firebase.firestore.FieldValue.serverTimestamp()})); }catch(e){ console.warn('firestore save failed', e); }
+    }
+
+    async function uploadToFirebaseStorage(file){
+      if(!FIREBASE_ENABLED || !FIREBASE.storageBucket) throw new Error('Firebase Storage غير مضبوط');
+      const id = makeId();
+      const path = `shared/${id}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_')}`;
+      const ref = firebase.storage().ref().child(path);
+      const snap = await ref.put(file);
+      const url = await snap.ref.getDownloadURL();
+      return { url, path, id };
+    }
+
+    function renderItem(it){
+      const wrapper = document.createElement('div');
+      wrapper.className = 'preview-item';
+      wrapper.dataset.id = it.id;
+      wrapper.style.padding='8px';
+      wrapper.style.border='1px solid rgba(0,0,0,0.06)';
+      wrapper.style.borderRadius='8px';
+      wrapper.style.marginBottom='8px';
+      wrapper.style.display='flex';
+      wrapper.style.alignItems='center';
+      wrapper.style.gap='10px';
+
+      const info = document.createElement('div'); info.style.flex='1';
+      const title = document.createElement('div'); title.textContent = it.name || it.url; title.style.fontWeight='600'; info.appendChild(title);
+
+      const url = it.dataUrl || it.url;
+      if(it.type && it.type.startsWith('image/') && url){ const img=document.createElement('img'); img.src=url; img.alt=it.name||''; img.style.maxWidth='120px'; img.style.borderRadius='6px'; img.style.objectFit='cover'; img.style.cursor='pointer'; img.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(img); }
+      else if(it.type && it.type.startsWith('video/') && url){ const vid=document.createElement('video'); vid.src=url; vid.controls=true; vid.style.maxWidth='160px'; vid.style.borderRadius='6px'; wrapper.appendChild(vid); }
+      else { const fileIcon=document.createElement('div'); fileIcon.textContent='📄'; fileIcon.style.fontSize='40px'; fileIcon.style.cursor='pointer'; if(url) fileIcon.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(fileIcon); }
+
+      const actions=document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
+      const saveBtn=document.createElement('button'); saveBtn.textContent='حفظ'; saveBtn.className='btn';
+      saveBtn.onclick=async ()=>{ if(!url){ uploadHint.textContent='لا يوجد رابط'; return;} try{ const resp=await fetch(url); const blob=await resp.blob(); const obj=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=obj; a.download=it.name||'file'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj); uploadHint.textContent='تم التنزيل'; }catch(e){ window.open(url,'_blank','noopener'); } };
+      const removeBtn=document.createElement('button'); removeBtn.textContent='إزالة'; removeBtn.className='btn'; removeBtn.onclick=()=>{ wrapper.remove(); items = items.filter(x=> x.id !== it.id); saveState(); if(firebaseDb) firebaseDb.collection('shared_items').doc(it.id).delete().catch(()=>{}); uploadHint.textContent='حذف'; };
+      actions.appendChild(saveBtn); actions.appendChild(removeBtn);
+
+      wrapper.appendChild(info); wrapper.appendChild(actions); sharePreview.appendChild(wrapper);
+    }
+
+    function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.push(it); renderItem(it); if(!REMOTE_ACTIVE) saveState(); if(firebaseDb) saveMetaToFirestore(it); }
+
+    function handleFiles(files){ if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; } Array.from(files).forEach(async f=>{ if(FIREBASE_ENABLED && FIREBASE.storageBucket){ uploadHint.textContent=`رفع ${f.name}...`; try{ const res = await uploadToFirebaseStorage(f); addAndPersistItem({kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path}); uploadHint.textContent=`تم رفع ${f.name}`; return; }catch(e){ console.warn('firebase upload failed', e); } }
+      if(f.size <= MAX_PERSIST_BYTES){ const reader=new FileReader(); reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا`; }; reader.readAsDataURL(f); } else { const url = URL.createObjectURL(f); addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'}); uploadHint.textContent='معاينة فقط (ملف كبير)'; } }); }
+
+    fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
+    addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent='تمت إضافة رابط'; urlInput.value=''; });
+
+    // تحميل الحالة المحلية
+    loadState();
+  </script>
 </body>
 </html>
