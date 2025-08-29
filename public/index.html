@@ -172,6 +172,7 @@
     let firebaseDb = null;
     let firebaseStorage = null;
     let CLOUD_ACTIVE = false;
+  const FORCE_CLOUD_ONLY = true; // تفعيل هذا يعني عدم استخدام التخزين المحلي إطلاقاً
   const cloudModeStatusEl = document.getElementById('cloudModeStatus');
   const itemsCountEl = document.getElementById('itemsCount');
   function setCloudBadge(txt, ok){ if(!cloudModeStatusEl) return; cloudModeStatusEl.textContent = txt; cloudModeStatusEl.style.background = ok? 'linear-gradient(90deg,#16a34a,#22c55e)' : '#f1f5f9'; cloudModeStatusEl.style.color = ok? '#fff':'#333'; }
@@ -279,6 +280,10 @@
   }
   function handleFiles(files){
     if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; }
+    if(FORCE_CLOUD_ONLY && !CLOUD_ACTIVE){
+      uploadHint.textContent='الرفع السحابي غير مُفعل: أضف إعدادات Firebase في firebase-config.js ثم أعد التحميل';
+      return;
+    }
     Array.from(files).forEach(async f=>{
       if(CLOUD_ACTIVE){
         try {
@@ -290,18 +295,19 @@
           uploadHint.textContent = `تم رفع ${f.name}`;
           hideProgress();
           return;
-        } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي — سيتم حفظ محلي'; hideProgress(); }
+        } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي، أعد المحاولة لاحقاً'; hideProgress(); return; }
       }
-      // Fallback محلي
-      if(f.size <= MAX_PERSIST_BYTES){ const reader=new FileReader(); reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا`; }; reader.readAsDataURL(f); } else { const url = URL.createObjectURL(f); addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'}); uploadHint.textContent='معاينة فقط (ملف كبير)'; }
+      if(!CLOUD_ACTIVE){
+        uploadHint.textContent='لم يتم تفعيل Firebase؛ لا يمكن رفع الملف.';
+      }
     });
   }
 
   fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
   addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent = CLOUD_ACTIVE? 'تمت إضافة رابط (سحابي)' : 'تمت إضافة رابط'; });
 
-    // تحميل الحالة المحلية
-    loadState();
+  // تحميل (لن يعرض محلي إذا FORCE_CLOUD_ONLY مفعل بدون سحابة)
+  if(!(FORCE_CLOUD_ONLY && !CLOUD_ACTIVE)) loadState(); else uploadHint.textContent='يرجى تفعيل Firebase ليعمل الرفع';
   </script>
 
 </body>
