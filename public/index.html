@@ -252,5 +252,74 @@
     // تحميل الحالة المحلية
     loadState();
   </script>
+
+  <section class="section" id="cloud-config" style="margin-top:32px">
+        <h2 style="text-align:center">إعداد Firebase للسحابة</h2>
+        <div class="card" style="max-width:640px;margin:0 auto">
+          <p class="muted">ضع مفاتيح الويب (علنية) لتفعيل حفظ الملفات في السحابة (Firestore + Storage). اتركها فارغة للاستخدام المحلي.</p>
+          <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+            <input id="fbApiKey" placeholder="apiKey" />
+            <input id="fbAuthDomain" placeholder="authDomain" />
+            <input id="fbProjectId" placeholder="projectId" />
+            <input id="fbBucket" placeholder="storageBucket" />
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button id="saveFbCfg" class="btn">حفظ التهيئة</button>
+            <button id="clearFbCfg" class="btn">مسح</button>
+            <span id="cloudStatus" class="muted" style="align-self:center">غير متصل</span>
+          </div>
+        </div>
+      </section>
+
+  <script>
+  // بعد تعريف المتغيرات الحالية سنضيف دعم واجهة التكوين
+  (function(){
+    const apiEl = document.getElementById('fbApiKey');
+    if(!apiEl) return; // لم تُحقن الواجهة بعد
+    const authEl = document.getElementById('fbAuthDomain');
+    const projEl = document.getElementById('fbProjectId');
+    const buckEl = document.getElementById('fbBucket');
+    const statusEl = document.getElementById('cloudStatus');
+
+    function updateStatus(txt, ok){ if(statusEl){ statusEl.textContent = txt; statusEl.style.color = ok? 'var(--accent,#0a7c5f)' : 'var(--muted,#666)'; } }
+
+    // استرجاع مخزن (لو لم تكن القيم في الملف)
+    try{
+      if(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey){
+        apiEl.value = window.FIREBASE_CONFIG.apiKey || '';
+        authEl.value = window.FIREBASE_CONFIG.authDomain || '';
+        projEl.value = window.FIREBASE_CONFIG.projectId || '';
+        buckEl.value = window.FIREBASE_CONFIG.storageBucket || '';
+        updateStatus('تهيئة من الملف', true);
+      } else {
+        const raw = localStorage.getItem('fb_cfg_dynamic');
+        if(raw){ const cfg = JSON.parse(raw); apiEl.value = cfg.apiKey||''; authEl.value=cfg.authDomain||''; projEl.value=cfg.projectId||''; buckEl.value=cfg.storageBucket||''; }
+      }
+    }catch(e){}
+
+    async function reinit(cfg){
+      try{
+        if(!cfg.apiKey || !cfg.projectId){ updateStatus('أكمل الحقول المطلوبة', false); return; }
+        // إعادة تهيئة
+        if(firebase.apps && firebase.apps.length){ /* لا إعادة */ }
+        else { firebase.initializeApp(cfg); }
+        firebaseDb = firebase.firestore();
+        FIREBASE.apiKey = cfg.apiKey; FIREBASE.authDomain = cfg.authDomain; FIREBASE.projectId = cfg.projectId; FIREBASE.storageBucket = cfg.storageBucket;
+        REMOTE_ACTIVE = true;
+        updateStatus('متصل بالسحابة', true);
+      }catch(e){ console.warn('init error', e); updateStatus('فشل التهيئة', false); }
+    }
+
+    document.getElementById('saveFbCfg').addEventListener('click', ()=>{
+      const cfg = { apiKey: apiEl.value.trim(), authDomain: authEl.value.trim(), projectId: projEl.value.trim(), storageBucket: buckEl.value.trim() };
+      if(!cfg.apiKey || !cfg.projectId){ updateStatus('أكمل apiKey و projectId', false); return; }
+      localStorage.setItem('fb_cfg_dynamic', JSON.stringify(cfg));
+      reinit(cfg);
+    });
+    document.getElementById('clearFbCfg').addEventListener('click', ()=>{
+      localStorage.removeItem('fb_cfg_dynamic'); updateStatus('تم المسح — محلي فقط', false); REMOTE_ACTIVE=false; try{ if(firebase.apps && firebase.apps.length) firebase.app().delete(); }catch(e){}
+    });
+  })();
+  </script>
 </body>
 </html>
