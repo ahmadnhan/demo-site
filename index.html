@@ -203,6 +203,7 @@
   
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
   <script>
     // Advanced client-side preview for multiple files + links with local persistence
     // Firebase/Firestore optional integration for cross-device metadata
@@ -210,8 +211,9 @@
     const FIREBASE = {
       apiKey: '',
       authDomain: '',
-      projectId: ''
-      // storageBucket, messagingSenderId, appId optional
+      projectId: '',
+      storageBucket: '' // e.g. 'your-project-id.appspot.com'
+      // messagingSenderId, appId optional
     };
     let firebaseDb = null;
     function initFirebase(){
@@ -231,6 +233,18 @@
         const payload = Object.assign({}, it, {updatedAt: firebase.firestore.FieldValue.serverTimestamp()});
         await docRef.set(payload);
       }catch(e){ console.warn('saveMetaToFirestore failed', e); }
+    }
+
+    async function uploadToFirebaseStorage(file){
+      if(!FIREBASE_ENABLED || !FIREBASE.storageBucket) throw new Error('firebase storage not configured');
+      try{
+        const id = makeId();
+        const path = `shared/${id}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_')}`;
+        const ref = firebase.storage().ref().child(path);
+        const snap = await ref.put(file);
+        const url = await snap.ref.getDownloadURL();
+        return { url, path, id };
+      }catch(e){ console.warn('uploadToFirebaseStorage failed', e); throw e; }
     }
 
     async function loadMetaFromFirestore(){
@@ -428,26 +442,35 @@
       if(!files || files.length === 0){ uploadHint.textContent = 'لم يتم اختيار ملفات'; return }
       uploadHint.textContent = `تم اختيار ${files.length} ملف`;
       Array.from(files).forEach(async (f)=>{
-        // If Cloudinary configured, try upload first (async)
+        // Prefer Firebase Storage upload if configured
+        if(FIREBASE_ENABLED && FIREBASE.storageBucket){
+          uploadHint.textContent = `جارٍ رفع ${f.name} إلى Firebase Storage...`;
+          try{
+            const res = await uploadToFirebaseStorage(f);
+            if(res && res.url){
+              addAndPersistItem({kind:'file', name: f.name, url: res.url, type: f.type || 'application/octet-stream', storagePath: res.path, uploaded: true});
+              uploadHint.textContent = `تم رفع ${f.name} وحفظ الرابط في السحابة`;
+              return;
+            }
+          }catch(e){ console.warn('firebase storage upload failed', e); /* fallthrough to other options */ }
+        }
+
+        // If Firebase not used, try Cloudinary if configured
         if(CLOUDINARY.cloudName && CLOUDINARY.uploadPreset){
-          uploadHint.textContent = `جارٍ رفع ${f.name} إلى السحابة...`;
+          uploadHint.textContent = `جارٍ رفع ${f.name} إلى Cloudinary...`;
           try{
             const res = await uploadToCloudinary(f);
             const remote = res.secure_url || res.url;
             if(remote){
               addAndPersistItem({kind:'file', name: f.name, url: remote, type: f.type || 'application/octet-stream', uploaded: true});
-              uploadHint.textContent = `تم رفع ${f.name} وحفظ الرابط`; 
+              uploadHint.textContent = `تم رفع ${f.name} وحفظ الرابط في السحابة`;
               return;
             }
-          }catch(err){
-            console.warn('cloud upload failed', err);
-            // fall through to local handling below
-          }
+          }catch(err){ console.warn('cloud upload failed', err); }
         }
 
         // local fallback: persist small files as dataURL, or preview large ones
         if(f.size <= MAX_PERSIST_BYTES){
-          // read as dataURL and persist
           const reader = new FileReader();
           reader.onload = (ev)=>{
             const dataUrl = ev.target.result;
@@ -456,7 +479,6 @@
           };
           reader.readAsDataURL(f);
         } else {
-          // too large to persist, create transient preview using objectURL
           const url = URL.createObjectURL(f);
           renderItem({id: makeId(), kind:'file', name: f.name, url, type: f.type});
           uploadHint.textContent = 'ملفات كبيرة لن تُحفظ محليًا، فقط معاينة مؤقتة';
