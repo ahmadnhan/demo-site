@@ -52,7 +52,10 @@
       <section id="share" class="section">
         <h2 style="text-align:center">مشاركة ملفات عبر الموقع</h2>
         <div class="card">
-          <div class="card-head">مشاركة ملفات عبر الموقع</div>
+          <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <span>مشاركة ملفات عبر الموقع</span>
+            <span id="cloudModeStatus" style="font-size:12px;padding:4px 8px;border-radius:16px;background:#f1f5f9;color:#333;letter-spacing:.5px">...تحقق</span>
+          </div>
           <p class="muted">يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.</p>
           <div class="actions">
             <label class="btn" style="cursor:pointer">
@@ -63,6 +66,7 @@
             <button id="addUrlBtn" class="btn" style="margin-inline-start:6px">أضف رابط</button>
             
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
+            <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8">0 عناصر</div>
           </div>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
         </div>
@@ -165,14 +169,20 @@
     let firebaseDb = null;
     let firebaseStorage = null;
     let CLOUD_ACTIVE = false;
-    try {
+  const cloudModeStatusEl = document.getElementById('cloudModeStatus');
+  const itemsCountEl = document.getElementById('itemsCount');
+  function setCloudBadge(txt, ok){ if(!cloudModeStatusEl) return; cloudModeStatusEl.textContent = txt; cloudModeStatusEl.style.background = ok? 'linear-gradient(90deg,#16a34a,#22c55e)' : '#f1f5f9'; cloudModeStatusEl.style.color = ok? '#fff':'#333'; }
+
+  try {
       if(FIREBASE_CFG){
         firebase.initializeApp(FIREBASE_CFG);
         firebaseDb = firebase.firestore();
         firebaseStorage = firebase.storage();
         CLOUD_ACTIVE = true;
+    setCloudBadge('سحابي', true);
       }
-    } catch(e){ console.warn('Firebase init failed', e); }
+  } catch(e){ console.warn('Firebase init failed', e); setCloudBadge('محلي', false); }
+  if(!CLOUD_ACTIVE) setCloudBadge('محلي', false);
 
     // واجهة العناصر
     const fileInput = document.getElementById('fileInput');
@@ -197,6 +207,7 @@
           items = [];
           snap.forEach(doc=>{ const it = doc.data(); items.push(it); renderItem(it); });
           uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
+          if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر` + (items.length!==1? '': '');
         }, err=>{
           console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
         });
@@ -246,7 +257,8 @@
     const url = await snap.ref.getDownloadURL();
     return { url, path, id };
   }
-  function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.unshift(it); renderItem(it); if(CLOUD_ACTIVE){ saveMetaCloud(it); } else { saveState(); } }
+  function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`; }
+  function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.unshift(it); renderItem(it); if(CLOUD_ACTIVE){ saveMetaCloud(it); } else { saveState(); } updateCounter(); }
   function handleFiles(files){ if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; } Array.from(files).forEach(async f=>{
       if(CLOUD_ACTIVE){
         try { uploadHint.textContent = `رفع ${f.name}...`; const res = await uploadFileToCloud(f); const meta = {kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path, id:res.id}; addAndPersistItem(meta); uploadHint.textContent = `تم رفع ${f.name}`; return; } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي — سيتم حفظ محلي'; }
