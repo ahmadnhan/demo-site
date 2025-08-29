@@ -68,6 +68,21 @@
             
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
           </div>
+          <details style="margin-top:12px;border:1px solid #ddd;padding:8px;border-radius:8px;background:var(--card,#fafafa)">
+            <summary style="cursor:pointer;font-weight:600">إعداد المزامنة السحابية (Firebase)</summary>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+              <small class="muted">املأ القيم أدناه (من إعدادات مشروع Firebase) ثم اضغط حفظ. بعد الحفظ تُفعّل المزامنة ويمكن فتح نفس الموقع من جهاز آخر لرؤية الملفات.</small>
+              <input id="fbApiKey" placeholder="apiKey" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
+              <input id="fbAuthDomain" placeholder="authDomain (مثال: project.firebaseapp.com)" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
+              <input id="fbProjectId" placeholder="projectId" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
+              <input id="fbBucket" placeholder="storageBucket (مثال: project.appspot.com)" style="padding:6px;border:1px solid #ccc;border-radius:6px" />
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button id="saveFbCfg" type="button" class="btn">حفظ الإعدادات</button>
+                <button id="clearFbCfg" type="button" class="btn" style="background:#b33">حذف الإعدادات</button>
+                <span id="cloudStatus" class="muted" style="font-size:13px">غير متصل بالسحابة</span>
+              </div>
+            </div>
+          </details>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
         </div>
       </section>
@@ -230,6 +245,43 @@
     }
   const FIREBASE_ENABLED = initFirebase();
   REMOTE_ACTIVE = ALWAYS_REMOTE && FIREBASE_ENABLED;
+    // تحميل إعدادات من localStorage إن وجدت
+    (function loadDynamicFirebaseConfig(){
+      try{
+        const raw = localStorage.getItem('demo_fb_cfg');
+        if(raw){
+          const cfg = JSON.parse(raw);
+          if(cfg.apiKey && !firebase.apps.length){
+            FIREBASE.apiKey = cfg.apiKey; FIREBASE.authDomain = cfg.authDomain; FIREBASE.projectId = cfg.projectId; FIREBASE.storageBucket = cfg.storageBucket;
+            try{ firebase.initializeApp(FIREBASE); firebaseDb = firebase.firestore(); }catch(_e){}
+          }
+        }
+      }catch(e){}
+    })();
+    // تحديث الحالة على الواجهة
+    function setCloudStatus(txt, good){
+      const el = document.getElementById('cloudStatus'); if(!el) return; el.textContent = txt; el.style.color = good? 'var(--accent,#0a7c5f)': 'var(--muted,#666)'; }
+    if(firebase.apps && firebase.apps.length){ setCloudStatus('متصل بالسحابة', true); REMOTE_ACTIVE = ALWAYS_REMOTE; subscribeRemote && subscribeRemote(); }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const k = document.getElementById('fbApiKey');
+      if(!k) return;
+      try{ const saved = JSON.parse(localStorage.getItem('demo_fb_cfg')||'null'); if(saved){ k.value = saved.apiKey||''; fbAuthDomain.value = saved.authDomain||''; fbProjectId.value = saved.projectId||''; fbBucket.value = saved.storageBucket||''; } }catch(e){}
+      document.getElementById('saveFbCfg').addEventListener('click', ()=>{
+        const cfg = { apiKey: fbApiKey.value.trim(), authDomain: fbAuthDomain.value.trim(), projectId: fbProjectId.value.trim(), storageBucket: fbBucket.value.trim() };
+        if(!cfg.apiKey || !cfg.projectId){ setCloudStatus('أكمل الحقول المطلوبة', false); return; }
+        localStorage.setItem('demo_fb_cfg', JSON.stringify(cfg));
+        try{
+          if(!firebase.apps.length){ firebase.initializeApp(cfg); }
+          firebaseDb = firebase.firestore();
+          FIREBASE.apiKey = cfg.apiKey; FIREBASE.authDomain = cfg.authDomain; FIREBASE.projectId = cfg.projectId; FIREBASE.storageBucket = cfg.storageBucket;
+          REMOTE_ACTIVE = ALWAYS_REMOTE; setCloudStatus('متصل بالسحابة', true);
+          subscribeRemote && subscribeRemote();
+        }catch(e){ setCloudStatus('فشل التهيئة', false); }
+      });
+      document.getElementById('clearFbCfg').addEventListener('click', ()=>{
+        localStorage.removeItem('demo_fb_cfg'); setCloudStatus('تم حذف الإعدادات — غير متصل', false); if(firebase.apps && firebase.apps.length){ try{ firebase.app().delete(); }catch(e){} } REMOTE_ACTIVE = false;
+      });
+    });
 
     // اشتراك فوري للبيانات السحابية
     const itemIds = new Set();
