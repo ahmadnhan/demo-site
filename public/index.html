@@ -229,11 +229,23 @@
     uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
     try {
       firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
-         sharePreview.innerHTML = '';
-         items = [];
-         snap.forEach(doc=>{ const it = doc.data(); items.push(it); renderItem(it); });
+         const seen = new Set();
+         const newItems = [];
+         snap.forEach(doc=>{
+           const it = doc.data();
+           if(!it.id){ return; }
+           seen.add(it.id);
+           newItems.push(it);
+           if(!sharePreview.querySelector(`.preview-item[data-id="${it.id}"]`)){
+             renderItem(it);
+           }
+         });
+         // إزالة العناصر التي لم تعد موجودة
+         sharePreview.querySelectorAll('.preview-item').forEach(node=>{ if(!seen.has(node.dataset.id)) node.remove(); });
+         items = newItems;
          uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
          if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر` + (items.length!==1? '': '');
+         const diag = document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent = `Snapshot OK docs=${items.length} @ ${new Date().toLocaleTimeString()}`; }
        }, err=>{
          console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
          const diag = document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Firestore snapshot error: '+(err.message||err); }
