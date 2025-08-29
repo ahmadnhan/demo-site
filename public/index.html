@@ -229,11 +229,23 @@
     uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
     try {
       firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
-         sharePreview.innerHTML = '';
+         const snapshotIds = [];
+         snap.forEach(doc=>{
+           const it = doc.data();
+           if(!it || !it.id) return;
+           snapshotIds.push(it.id);
+           if(!sharePreview.querySelector(`.preview-item[data-id="${it.id}"]`)){
+             renderItem(it, true); // أدخل العنصر الجديد أعلى القائمة
+           }
+         });
+         // إزالة العناصر التي لم تعد موجودة في السحابة
+         sharePreview.querySelectorAll('.preview-item').forEach(node=>{ if(!snapshotIds.includes(node.dataset.id)) node.remove(); });
+         // إعادة بناء مصفوفة العناصر بالترتيب
          items = [];
-         snap.forEach(doc=>{ const it = doc.data(); items.push(it); renderItem(it); });
+         snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
          uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
          if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر` + (items.length!==1? '': '');
+         const diag = document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent=`Snapshot ✅ docs=${items.length} @ ${new Date().toLocaleTimeString()}`; }
        }, err=>{
          console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
          const diag = document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Firestore snapshot error: '+(err.message||err); }
@@ -241,7 +253,7 @@
     } catch(e){ uploadHint.textContent='خطأ في الاتصال بالسحابة'; }
   }
 
-    function renderItem(it){
+  function renderItem(it, insertTop){
       const wrapper = document.createElement('div');
       wrapper.className = 'preview-item';
       wrapper.dataset.id = it.id;
@@ -267,7 +279,12 @@
   const removeBtn=document.createElement('button'); removeBtn.textContent='إزالة'; removeBtn.className='btn'; removeBtn.onclick=()=>{ wrapper.remove(); items = items.filter(x=> x.id !== it.id); saveState(); if(firebaseDb) firebaseDb.collection('shared_items').doc(it.id).delete().catch(()=>{}); if(firebaseStorage && it.storagePath){ firebaseStorage.ref().child(it.storagePath).delete().catch(()=>{}); } uploadHint.textContent='حذف'; };
       actions.appendChild(saveBtn); actions.appendChild(removeBtn);
 
-      wrapper.appendChild(info); wrapper.appendChild(actions); sharePreview.appendChild(wrapper);
+      wrapper.appendChild(info); wrapper.appendChild(actions);
+      if(insertTop && sharePreview.firstChild){
+        sharePreview.insertBefore(wrapper, sharePreview.firstChild);
+      } else {
+        sharePreview.appendChild(wrapper);
+      }
     }
 
   async function saveMetaCloud(it){
@@ -299,7 +316,7 @@
     const it = Object.assign({id: makeId()}, obj);
     // عرض تفاؤلي
     items.unshift(it);
-    renderItem(it);
+  renderItem(it, true);
     updateCounter();
     saveMetaCloud(it);
   }
