@@ -72,6 +72,7 @@
             </div>
           </div>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
+          <pre id="cloudDiag" style="direction:ltr;font-size:11px;background:#0f172a;color:#94a3b8;padding:6px;border-radius:6px;overflow:auto;max-height:140px;display:none"></pre>
         </div>
       </section>
 
@@ -172,7 +173,7 @@
     let firebaseDb = null;
     let firebaseStorage = null;
     let CLOUD_ACTIVE = false;
-  const FORCE_CLOUD_ONLY = false; // كان true وتم إعادته إلى false للسماح بالفallback المحلي عند عدم تفعيل Firebase
+  const FORCE_CLOUD_ONLY = true; // تفعيل وضع: رفع سحابي فقط بدون تخزين محلي
   const cloudModeStatusEl = document.getElementById('cloudModeStatus');
   const itemsCountEl = document.getElementById('itemsCount');
   function setCloudBadge(txt, ok){ if(!cloudModeStatusEl) return; cloudModeStatusEl.textContent = txt; cloudModeStatusEl.style.background = ok? 'linear-gradient(90deg,#16a34a,#22c55e)' : '#f1f5f9'; cloudModeStatusEl.style.color = ok? '#fff':'#333'; }
@@ -214,24 +215,30 @@
 
     function makeId(){ return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
 
-  function saveState(){ if(CLOUD_ACTIVE) return; try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }catch(e){} }
+  // (مع السحابي فقط) تعطيل التخزين المحلي
+  function saveState(){ /* محذوف */ }
   function loadState(){
-    if(CLOUD_ACTIVE){
-      uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
-      try {
-        firebaseDb.collection('shared_items').orderBy('updatedAt','desc').limit(200).onSnapshot(snap=>{
-          sharePreview.innerHTML = '';
-          items = [];
-          snap.forEach(doc=>{ const it = doc.data(); items.push(it); renderItem(it); });
-          uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
-          if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر` + (items.length!==1? '': '');
-        }, err=>{
-          console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
-        });
-      } catch(e){ uploadHint.textContent='خطأ في الاتصال بالسحابة'; }
+    if(!CLOUD_ACTIVE){
+      uploadHint.textContent = 'الرفع معطل: فعل Firebase أولاً (سحابي فقط)';
+      // إزالة أي بيانات محلية قديمة
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+      fileInput && (fileInput.disabled = true);
+      addUrlBtn && (addUrlBtn.disabled = true);
       return;
     }
-    try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ items = JSON.parse(raw)||[]; items.forEach(renderItem); if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`; } }catch(e){}
+    uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
+    try {
+      firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
+         sharePreview.innerHTML = '';
+         items = [];
+         snap.forEach(doc=>{ const it = doc.data(); items.push(it); renderItem(it); });
+         uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
+         if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر` + (items.length!==1? '': '');
+       }, err=>{
+         console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
+         const diag = document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Firestore snapshot error: '+(err.message||err); }
+       });
+    } catch(e){ uploadHint.textContent='خطأ في الاتصال بالسحابة'; }
   }
 
     function renderItem(it){
@@ -263,7 +270,15 @@
       wrapper.appendChild(info); wrapper.appendChild(actions); sharePreview.appendChild(wrapper);
     }
 
-  async function saveMetaCloud(it){ if(!firebaseDb) return; try{ await firebaseDb.collection('shared_items').doc(it.id).set(Object.assign({}, it, {updatedAt: firebase.firestore.FieldValue.serverTimestamp()})); }catch(e){ console.warn('save meta failed', e); }}
+  async function saveMetaCloud(it){
+    if(!firebaseDb) return;
+    try {
+      await firebaseDb.collection('shared_items').doc(it.id).set(Object.assign({}, it, {
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAtMs: Date.now()
+      }));
+    } catch(e){ console.warn('save meta failed', e); const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Save meta failed: '+(e.message||e); } }
+  }
   function showProgress(){ const c=document.getElementById('uploadProgress'); if(c) c.style.display='block'; }
   function setProgress(p){ const b=document.getElementById('uploadBar'); if(b) b.style.width = (Math.min(100, Math.max(0, p*100))).toFixed(1)+'%'; }
   function hideProgress(){ const c=document.getElementById('uploadProgress'); if(c) c.style.display='none'; setProgress(0); }
@@ -280,52 +295,32 @@
   }
   function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`; }
   function addAndPersistItem(obj){
+    if(!CLOUD_ACTIVE){ uploadHint.textContent='غير ممكن بدون اتصال Firebase'; return; }
     const it = Object.assign({id: makeId()}, obj);
-    if(CLOUD_ACTIVE){
-      // عرض تفاؤلي ثم سيتم إعادة البناء عبر onSnapshot (الذي يفرغ الحاوية)
-      items.unshift(it);
-      renderItem(it);
-      updateCounter();
-      saveMetaCloud(it);
-    } else {
-      items.unshift(it);
-      renderItem(it);
-      saveState();
-      updateCounter();
-    }
+    // عرض تفاؤلي
+    items.unshift(it);
+    renderItem(it);
+    updateCounter();
+    saveMetaCloud(it);
   }
   function handleFiles(files){
     if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; }
+    if(!CLOUD_ACTIVE){ uploadHint.textContent='Firebase غير متصل (مطلوب)'; return; }
     Array.from(files).forEach(async f=>{
-      if(CLOUD_ACTIVE){
-        try {
-          uploadHint.textContent = `رفع ${f.name}...`;
-            showProgress(); setProgress(0);
-            const res = await uploadFileToCloud(f, p=> setProgress(p));
-            const meta = {kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path, id:res.id};
-            addAndPersistItem(meta);
-            uploadHint.textContent = `تم رفع ${f.name}`;
-            hideProgress();
-            return;
-        } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي — سيتم الحفظ محلي'; hideProgress(); }
-      }
-      // Fallback محلي (إذا لم يكن السحابي نشط أو فشل)
-      if(!CLOUD_ACTIVE || !FIREBASE_CFG){
-        if(f.size <= MAX_PERSIST_BYTES){
-          const reader=new FileReader();
-          reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا (Firebase غير مُفعل)`; };
-          reader.readAsDataURL(f);
-        } else {
-          const url = URL.createObjectURL(f);
-          addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'});
-          uploadHint.textContent='ملف كبير: معاينة محلية فقط. فعل Firebase للحفظ السحابي';
-        }
-      }
+      try {
+        uploadHint.textContent = `رفع ${f.name}...`;
+        showProgress(); setProgress(0);
+        const res = await uploadFileToCloud(f, p=> setProgress(p));
+        const meta = {kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path, id:res.id};
+        addAndPersistItem(meta);
+        uploadHint.textContent = `تم رفع ${f.name}`;
+      } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي'; const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Cloud upload failed: '+(e.message||e); } }
+      hideProgress();
     });
   }
 
   fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
-  addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent = CLOUD_ACTIVE? 'تمت إضافة رابط (سحابي)' : 'تمت إضافة رابط'; });
+  addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; if(!CLOUD_ACTIVE){ uploadHint.textContent='Firebase غير متصل'; return; } const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent = 'تمت إضافة رابط (سحابي)'; });
 
   // تحميل (لن يعرض محلي إذا FORCE_CLOUD_ONLY مفعل بدون سحابة)
   loadState();
