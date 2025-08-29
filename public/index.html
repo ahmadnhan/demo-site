@@ -379,6 +379,23 @@
     saveMetaCloud(it);
   try{ logDiag('addAndPersistItem '+it.id+' name='+(it.name||'')); }catch(_){ }
   }
+
+  // تخزين صورة صغيرة داخل Firestore مباشرة (كحل مؤقت إذا فشل التخزين السحابي بسبب CORS)
+  async function fallbackInlineImage(file, placeholder){
+    try {
+      if(!firebaseDb) return false;
+      if(!(file.type||'').startsWith('image/')) return false;
+      if(file.size > 160*1024) { logDiag('تجاوز الحجم عن حد inline'); return false; }
+      const fr = new FileReader();
+      const dataUrl = await new Promise((res,rej)=>{ fr.onerror=()=>rej(fr.error); fr.onload=()=>res(fr.result); fr.readAsDataURL(file); });
+      const doc = { kind:'file-inline', name:file.name, type:file.type, dataUrl, inline:true };
+      addAndPersistItem(doc);
+      placeholder && placeholder.setStatus('حُفظت Inline');
+      uploadHint.textContent='تم رفع (Inline)';
+      logDiag('Inline save for '+file.name+' size='+file.size);
+      return true;
+    } catch(e){ logDiag('فشل inline: '+(e.message||e)); return false; }
+  }
   function handleFiles(files){
     if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; }
     if(!CLOUD_ACTIVE){ uploadHint.textContent='Firebase غير متصل (مطلوب)'; return; }
@@ -436,6 +453,10 @@
           const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Upload error: '+(err.message||err); }
           const took = ((Date.now()-startTime)/1000).toFixed(1);
           logDiag(`Upload fail ${f.name} after ${took}s code=${err && err.code}`);
+          // محاولة حفظ Inline إذا كان سبب الفشل CORS أو منع تخزين
+          if((err && (String(err.message).includes('CORS') || String(err.code).includes('storage/unknown') ))){
+            fallbackInlineImage(f, placeholder);
+          }
         }, async ()=>{
           clearTimeout(timeout);
           if(canceled) return;
