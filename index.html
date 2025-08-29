@@ -201,8 +201,48 @@
     document.querySelectorAll('.card, .section').forEach(el=>{ el.classList.add('reveal'); io.observe(el) });
   </script>
   
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script>
     // Advanced client-side preview for multiple files + links with local persistence
+    // Firebase/Firestore optional integration for cross-device metadata
+    // Fill FIREBASE config below to enable remote metadata storage
+    const FIREBASE = {
+      apiKey: '',
+      authDomain: '',
+      projectId: ''
+      // storageBucket, messagingSenderId, appId optional
+    };
+    let firebaseDb = null;
+    function initFirebase(){
+      try{
+        if(!FIREBASE.apiKey || !FIREBASE.projectId) return false;
+        firebase.initializeApp(FIREBASE);
+        firebaseDb = firebase.firestore();
+        return true;
+      }catch(e){ console.warn('firebase init failed', e); return false; }
+    }
+    const FIREBASE_ENABLED = initFirebase();
+
+    async function saveMetaToFirestore(it){
+      if(!firebaseDb) return;
+      try{
+        const docRef = firebaseDb.collection('shared_items').doc(it.id);
+        const payload = Object.assign({}, it, {updatedAt: firebase.firestore.FieldValue.serverTimestamp()});
+        await docRef.set(payload);
+      }catch(e){ console.warn('saveMetaToFirestore failed', e); }
+    }
+
+    async function loadMetaFromFirestore(){
+      if(!firebaseDb) return [];
+      try{
+        const snap = await firebaseDb.collection('shared_items').orderBy('updatedAt','desc').limit(500).get();
+        const arr = [];
+        snap.forEach(d=> arr.push(d.data()));
+        return arr;
+      }catch(e){ console.warn('loadMetaFromFirestore failed', e); return []; }
+    }
+
     const fileInput = document.getElementById('fileInput');
     const uploadHint = document.getElementById('uploadHint');
     const sharePreview = document.getElementById('sharePreview');
@@ -244,6 +284,16 @@
         items = JSON.parse(raw) || [];
         items.forEach(it=> renderItem(it));
         if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`;
+        // if firebase enabled, also load remote metadata and merge
+        if(FIREBASE_ENABLED){
+          (async ()=>{
+            const remote = await loadMetaFromFirestore();
+            // merge remote items (avoid duplicates by id)
+            const existingIds = new Set(items.map(x=>x.id));
+            remote.forEach(r=>{ if(!existingIds.has(r.id)){ items.push(r); renderItem(r); } });
+            uploadHint.textContent = `تحميل ${items.length} عنصر (محلي+سحابي)`;
+          })();
+        }
       }catch(e){ console.warn('load failed', e); }
     }
 
@@ -369,7 +419,9 @@
       const it = Object.assign({id: makeId()}, obj);
       items.push(it);
       saveState();
-      renderItem(it);
+  renderItem(it);
+  // also save metadata to firestore if enabled
+  if(FIREBASE_ENABLED){ saveMetaToFirestore(it); }
     }
 
     function handleFiles(files){
