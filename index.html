@@ -331,6 +331,63 @@
     const STORAGE_KEY = 'demo_share_items_v1';
     const MAX_PERSIST_BYTES = 2 * 1024 * 1024; // 2MB per file
     let items = []; // persisted items
+    // IndexedDB لدعم حفظ الملفات الكبيرة محليًا (Safari/iOS)
+    const USE_INDEXED_DB = true;
+    const IDB_DB_NAME = 'demo_share_files';
+    const IDB_STORE = 'files';
+    let idbDb = null;
+
+    function openShareDb(){
+      return new Promise((resolve,reject)=>{
+        if(idbDb) return resolve(idbDb);
+        if(!USE_INDEXED_DB || !('indexedDB' in window)) return resolve(null);
+        const req = indexedDB.open(IDB_DB_NAME, 1);
+        req.onupgradeneeded = (e)=>{
+          const db = e.target.result;
+            if(!db.objectStoreNames.contains(IDB_STORE)){
+              const store = db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+              store.createIndex('updatedAt','updatedAt',{unique:false});
+            }
+        };
+        req.onsuccess = (e)=>{ idbDb = e.target.result; resolve(idbDb); };
+        req.onerror = ()=> resolve(null); // لا نُفشل التطبيق
+      });
+    }
+
+    async function saveBlobToDb(id, file){
+      const db = await openShareDb();
+      if(!db) return false;
+      return new Promise(res=>{
+        try{
+          const tx = db.transaction(IDB_STORE,'readwrite');
+          tx.objectStore(IDB_STORE).put({id, name:file.name, type:file.type, size:file.size, updatedAt:Date.now(), blob:file});
+          tx.oncomplete = ()=> res(true);
+          tx.onerror = ()=> res(false);
+        }catch(e){ res(false); }
+      });
+    }
+
+    async function deleteFromDb(id){
+      const db = await openShareDb();
+      if(!db) return;
+      try{
+        const tx = db.transaction(IDB_STORE,'readwrite');
+        tx.objectStore(IDB_STORE).delete(id);
+      }catch(e){ /* ignore */ }
+    }
+
+    async function loadAllFromDb(){
+      const db = await openShareDb();
+      if(!db) return [];
+      return new Promise(resolve=>{
+        try{
+          const tx = db.transaction(IDB_STORE,'readonly');
+          const req = tx.objectStore(IDB_STORE).getAll();
+          req.onsuccess = ()=> resolve(req.result || []);
+          req.onerror = ()=> resolve([]);
+        }catch(e){ resolve([]); }
+      });
+    }
 
     function saveState(){
   if(REMOTE_ACTIVE) return; // لا حفظ محلي في الوضع السحابي الفعّال
@@ -352,6 +409,24 @@
         items.forEach(it=> renderItem(it));
         if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`;      
       }catch(e){ console.warn('load failed', e); }
+      // تحميل الملفات الكبيرة من IndexedDB
+      (async ()=>{
+        const dbItems = await loadAllFromDb();
+        const existing = new Set(items.map(x=>x.id));
+        let added = 0;
+        dbItems.forEach(row=>{
+          if(!existing.has(row.id)){
+            const objUrl = URL.createObjectURL(row.blob);
+            const meta = {id:row.id, kind:'file', name: row.name, url: objUrl, type: row.type || 'application/octet-stream', storage:'idb'};
+            items.push(meta);
+            renderItem(meta);
+            added++;
+          }
+        });
+        if(added){
+          uploadHint.textContent = `تحميل ${items.length} عنصر (بينها ملفات كبيرة)`;
+        }
+      })();
     }
 
     function makeId(){ return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
@@ -461,7 +536,7 @@
       removeBtn.addEventListener('click', async ()=>{
         wrapper.remove();
         items = items.filter(x=> x.id !== it.id);
-  if(REMOTE_ACTIVE){
+        if(REMOTE_ACTIVE){
           try{
             await firebaseDb.collection('shared_items').doc(it.id).delete();
             if(it.storagePath){
@@ -471,6 +546,7 @@
           }catch(e){ uploadHint.textContent = 'تعذر حذف السحابي'; }
         } else {
           saveState();
+          if(it.storage === 'idb') deleteFromDb(it.id);
         }
       });
       actions.appendChild(removeBtn);
@@ -525,7 +601,7 @@
         }
 
         // local fallback: persist small files as dataURL, or preview large ones
-  if(!REMOTE_ACTIVE && f.size <= MAX_PERSIST_BYTES){
+        if(!REMOTE_ACTIVE && f.size <= MAX_PERSIST_BYTES){
           const reader = new FileReader();
           reader.onload = (ev)=>{
             const dataUrl = ev.target.result;
@@ -533,10 +609,21 @@
             uploadHint.textContent = `تم حفظ ${f.name} محليًا`;
           };
           reader.readAsDataURL(f);
-  } else if(!REMOTE_ACTIVE) {
-          const url = URL.createObjectURL(f);
-          renderItem({id: makeId(), kind:'file', name: f.name, url, type: f.type});
-          uploadHint.textContent = 'ملفات كبيرة لن تُحفظ محليًا، فقط معاينة مؤقتة';
+        } else if(!REMOTE_ACTIVE) {
+          // محاولة حفظ الملف الكبير في IndexedDB
+          const id = makeId();
+          const ok = await saveBlobToDb(id, f);
+          if(ok){
+            const url = URL.createObjectURL(f);
+            items.push({id, kind:'file', name:f.name, url, type:f.type||'application/octet-stream', storage:'idb'});
+            renderItem(items[items.length-1]);
+            saveState(); // نحفظ الميتاداتا فقط
+            uploadHint.textContent = 'تم حفظ الملف الكبير محليًا (قاعدة بيانات)';
+          } else {
+            const url = URL.createObjectURL(f);
+            renderItem({id, kind:'file', name: f.name, url, type: f.type});
+            uploadHint.textContent = 'تمت المعاينة فقط (تعذر حفظ الملف الكبير)';
+          }
         }
       });
     }
