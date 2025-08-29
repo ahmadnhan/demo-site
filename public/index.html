@@ -155,8 +155,26 @@
     document.querySelectorAll('.card, .section').forEach(el=>{ el.classList.add('reveal'); io.observe(el) });
   </script>
   
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="firebase-config.js"></script>
   <script>
-    // منطق محلي فقط لمشاركة الملفات (لا اتصال سحابي)
+    // دعم رفع سحابي (Firestore + Storage) مع Fallback محلي
+    const FIREBASE_CFG = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey)? window.FIREBASE_CONFIG : null;
+    let firebaseDb = null;
+    let firebaseStorage = null;
+    let CLOUD_ACTIVE = false;
+    try {
+      if(FIREBASE_CFG){
+        firebase.initializeApp(FIREBASE_CFG);
+        firebaseDb = firebase.firestore();
+        firebaseStorage = firebase.storage();
+        CLOUD_ACTIVE = true;
+      }
+    } catch(e){ console.warn('Firebase init failed', e); }
+
+    // واجهة العناصر
     const fileInput = document.getElementById('fileInput');
     const uploadHint = document.getElementById('uploadHint');
     const sharePreview = document.getElementById('sharePreview');
@@ -169,8 +187,24 @@
 
     function makeId(){ return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
 
-  function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }catch(e){} }
-  function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ items = JSON.parse(raw)||[]; items.forEach(renderItem); if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`; } }catch(e){} }
+  function saveState(){ if(CLOUD_ACTIVE) return; try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }catch(e){} }
+  function loadState(){
+    if(CLOUD_ACTIVE){
+      uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
+      try {
+        firebaseDb.collection('shared_items').orderBy('updatedAt','desc').limit(200).onSnapshot(snap=>{
+          sharePreview.innerHTML = '';
+          items = [];
+          snap.forEach(doc=>{ const it = doc.data(); items.push(it); renderItem(it); });
+          uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
+        }, err=>{
+          console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
+        });
+      } catch(e){ uploadHint.textContent='خطأ في الاتصال بالسحابة'; }
+      return;
+    }
+    try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ items = JSON.parse(raw)||[]; items.forEach(renderItem); if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`; } }catch(e){}
+  }
 
     function renderItem(it){
       const wrapper = document.createElement('div');
@@ -201,11 +235,27 @@
       wrapper.appendChild(info); wrapper.appendChild(actions); sharePreview.appendChild(wrapper);
     }
 
-  function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.push(it); renderItem(it); saveState(); }
-  function handleFiles(files){ if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; } Array.from(files).forEach(f=>{ if(f.size <= MAX_PERSIST_BYTES){ const reader=new FileReader(); reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا`; }; reader.readAsDataURL(f); } else { const url = URL.createObjectURL(f); addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'}); uploadHint.textContent='معاينة فقط (ملف كبير)'; } }); }
+  async function saveMetaCloud(it){ if(!firebaseDb) return; try{ await firebaseDb.collection('shared_items').doc(it.id).set(Object.assign({}, it, {updatedAt: firebase.firestore.FieldValue.serverTimestamp()})); }catch(e){ console.warn('save meta failed', e); }}
+  async function uploadFileToCloud(file){
+    if(!firebaseStorage) throw new Error('No storage');
+    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
+    const id = makeId();
+    const path = `shared/${id}_${safeName}`;
+    const ref = firebaseStorage.ref().child(path);
+    const snap = await ref.put(file);
+    const url = await snap.ref.getDownloadURL();
+    return { url, path, id };
+  }
+  function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.unshift(it); renderItem(it); if(CLOUD_ACTIVE){ saveMetaCloud(it); } else { saveState(); } }
+  function handleFiles(files){ if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; } Array.from(files).forEach(async f=>{
+      if(CLOUD_ACTIVE){
+        try { uploadHint.textContent = `رفع ${f.name}...`; const res = await uploadFileToCloud(f); const meta = {kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path, id:res.id}; addAndPersistItem(meta); uploadHint.textContent = `تم رفع ${f.name}`; return; } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي — سيتم حفظ محلي'; }
+      }
+      if(f.size <= MAX_PERSIST_BYTES){ const reader=new FileReader(); reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا`; }; reader.readAsDataURL(f); } else { const url = URL.createObjectURL(f); addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'}); uploadHint.textContent='معاينة فقط (ملف كبير)'; }
+    }); }
 
   fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
-  addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent='تمت إضافة رابط'; urlInput.value=''; });
+  addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent = CLOUD_ACTIVE? 'تمت إضافة رابط (سحابي)' : 'تمت إضافة رابط'; });
 
     // تحميل الحالة المحلية
     loadState();
