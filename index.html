@@ -65,7 +65,7 @@
             </label>
             <input id="urlInput" type="url" placeholder="الصق رابط (صورة/فيديو/ميديا) وأضف" style="margin-inline-start:8px;padding:6px;border-radius:6px;border:1px solid var(--muted,#ccc)" />
             <button id="addUrlBtn" class="btn" style="margin-inline-start:6px">أضف رابط</button>
-            <button id="downloadSiteBtn" class="btn" style="margin-inline-start:6px">تنزيل الموقع</button>
+            
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
           </div>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
@@ -200,53 +200,7 @@
     },{threshold:0.12});
     document.querySelectorAll('.card, .section').forEach(el=>{ el.classList.add('reveal'); io.observe(el) });
   </script>
-  <!-- JSZip for packaging site -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js" integrity="sha512-M+oSgqv1s2+gYV8bZq3s0n3b6YwWqk3Zk1Zq0Xh3ZQG5Q6s9YkV3G6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script>
-    const downloadSiteBtn = document.getElementById('downloadSiteBtn');
-    async function fetchText(path){ try{ const r = await fetch(path); if(!r.ok) throw new Error('fail'); return await r.text() }catch(e){ return null } }
-    downloadSiteBtn && downloadSiteBtn.addEventListener('click', async ()=>{
-      downloadSiteBtn.disabled = true; downloadSiteBtn.textContent = 'جارٍ التجهيز...';
-      const zip = new JSZip();
-      // add styles
-      const css = await fetchText('styles.css');
-      if(css) zip.file('styles.css', css);
-      // add index.html snapshot (inline scripts/styles preserved)
-      const html = document.documentElement.outerHTML;
-      zip.file('index.html', '<!doctype html>\n' + html);
-      // add saved shared items
-      try{
-        const raw = localStorage.getItem('demo_share_items_v1');
-        const items = raw ? JSON.parse(raw) : [];
-        const assets = zip.folder('shared');
-        for(const it of items){
-          if(it.dataUrl){
-            // data URL -> convert to blob
-            const match = it.dataUrl.match(/^data:([^;]+);base64,(.*)$/);
-            if(match){
-              const mime = match[1];
-              const b64 = match[2];
-              const bin = atob(b64);
-              const arr = new Uint8Array(bin.length);
-              for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
-              assets.file(it.name || (it.id || 'file'), arr);
-            }
-          } else if(it.url){
-            try{
-              const r = await fetch(it.url);
-              if(r.ok){ const blob = await r.blob(); const buf = await blob.arrayBuffer(); assets.file(it.name || (it.id||'file'), buf); }
-            }catch(e){ /* ignore */ }
-          }
-        }
-      }catch(e){ /* ignore */ }
-      const content = await zip.generateAsync({type:'blob'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(content);
-      a.download = 'demo-site-' + (new Date().toISOString().slice(0,10)) + '.zip';
-      document.body.appendChild(a); a.click(); a.remove();
-      downloadSiteBtn.textContent = 'تنزيل الموقع'; downloadSiteBtn.disabled = false;
-    });
-  </script>
+  
   <script>
     // Advanced client-side preview for multiple files + links with local persistence
     const fileInput = document.getElementById('fileInput');
