@@ -370,10 +370,21 @@
         const ref = firebaseStorage.ref().child(path);
         const task = ref.put(f);
         taskRef = task;
-        const timeoutMs = 60000; // 60 ثانية مهلة
+  const timeoutMs = 180000; // 180 ثانية مهلة (تمديد للتشخيص)
         const timeout = setTimeout(()=>{ if(!canceled){ timedOut = true; try{ task.cancel(); }catch(_){} placeholder.setStatus('انتهت المهلة'); } }, timeoutMs);
+        let firstSnapLogged = false;
         task.on('state_changed', snap=>{
-          if(snap.totalBytes){ const p = snap.bytesTransferred / snap.totalBytes; placeholder.setProgress(p); }
+          if(!firstSnapLogged){
+            logDiag(`بدأ الرفع ${f.name} bytesTotal=${snap.totalBytes}`);
+            firstSnapLogged = true;
+          }
+          if(snap.totalBytes){
+            const p = snap.bytesTransferred / snap.totalBytes;
+            placeholder.setProgress(p);
+            if(snap.bytesTransferred>0){
+              logDiag(`تقدم ${f.name}: ${snap.bytesTransferred}/${snap.totalBytes}`);
+            }
+          }
         }, err=>{
           clearTimeout(timeout);
           if(canceled) return;
