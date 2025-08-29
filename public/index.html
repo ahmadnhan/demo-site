@@ -64,7 +64,6 @@
             </label>
             <input id="urlInput" type="url" placeholder="الصق رابط (صورة/فيديو/ميديا) وأضف" style="margin-inline-start:8px;padding:6px;border-radius:6px;border:1px solid var(--muted,#ccc)" />
             <button id="addUrlBtn" class="btn" style="margin-inline-start:6px">أضف رابط</button>
-            <button id="testCloudBtn" class="btn" style="margin-inline-start:6px;background:#0ea5e9">اختبار السحابة</button>
             
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
             <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8">0 عناصر</div>
@@ -179,14 +178,6 @@
   const itemsCountEl = document.getElementById('itemsCount');
   function setCloudBadge(txt, ok){ if(!cloudModeStatusEl) return; cloudModeStatusEl.textContent = txt; cloudModeStatusEl.style.background = ok? 'linear-gradient(90deg,#16a34a,#22c55e)' : '#f1f5f9'; cloudModeStatusEl.style.color = ok? '#fff':'#333'; }
   const REQUIRED_CFG_KEYS = ['apiKey','authDomain','projectId','storageBucket'];
-  // أداة تسجيل داخل صندوق التشخيص
-  function logDiag(msg){
-    const diag = document.getElementById('cloudDiag');
-    if(!diag) return;
-    diag.style.display='block';
-    const ts = new Date().toLocaleTimeString();
-    diag.textContent = `[${ts}] ${msg}\n` + (diag.textContent||'');
-  }
 
   try {
       if(FIREBASE_CFG){
@@ -217,7 +208,6 @@
     const sharePreview = document.getElementById('sharePreview');
     const urlInput = document.getElementById('urlInput');
     const addUrlBtn = document.getElementById('addUrlBtn');
-  const testCloudBtn = document.getElementById('testCloudBtn');
 
     const STORAGE_KEY = 'demo_share_items_v1';
     const MAX_PERSIST_BYTES = 2 * 1024 * 1024; // 2MB
@@ -234,8 +224,6 @@
       try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
       fileInput && (fileInput.disabled = true);
       addUrlBtn && (addUrlBtn.disabled = true);
-      let lastBytes = 0, stallCount = 0;
-      let stallTimer = null;
       return;
     }
     uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
@@ -247,39 +235,26 @@
            if(!it || !it.id) return;
            snapshotIds.push(it.id);
            if(!sharePreview.querySelector(`.preview-item[data-id="${it.id}"]`)){
-        // مراقبة التوقف (stall) كل 10 ثواني: إذا لم تتغير البايتات 3 مرات (30 ثانية) نعرض تنبيه
-        stallTimer = setInterval(()=>{
-          if(canceled) return;
-          if(lastBytes === task.snapshot.bytesTransferred){
-            stallCount++;
-            if(stallCount === 2){ placeholder.setStatus('بطيء... تحقق من الانترنت'); logDiag('تحذير: الرفع بطيء أو متوقف '+f.name); }
-            if(stallCount === 3){ placeholder.setStatus('متوقف تقريباً'); logDiag('Stall محتمل للملف '+f.name); }
-              firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
-                const snapshotIds = [];
-                snap.forEach(doc=>{
-                  const it = doc.data();
-                  if(!it || !it.id) return;
-                  snapshotIds.push(it.id);
-                  if(!sharePreview.querySelector(`.preview-item[data-id="${it.id}"]`)){
-                    renderItem(it, true); // أدخل العنصر الجديد أعلى القائمة
-                  }
-                });
-                // إزالة العناصر التي لم تعد موجودة (تجاهل العناصر المؤقتة أثناء الرفع)
-                sharePreview.querySelectorAll('.preview-item').forEach(node=>{ if(!snapshotIds.includes(node.dataset.id) && !node.dataset.temp) node.remove(); });
-                // إعادة بناء مصفوفة العناصر بالترتيب
-                items = [];
-                snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
-                uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
-                if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`;
-                logDiag('Snapshot docs='+items.length);
-              }, err=>{
-                console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
-                logDiag('Firestore snapshot error: '+(err.message||err));
-              });
+             renderItem(it, true); // أدخل العنصر الجديد أعلى القائمة
+           }
+         });
+     // إزالة العناصر التي لم تعد موجودة (تجاهل العناصر المؤقتة temp أثناء الرفع)
+     sharePreview.querySelectorAll('.preview-item').forEach(node=>{ if(!snapshotIds.includes(node.dataset.id) && !node.dataset.temp) node.remove(); });
+         // إعادة بناء مصفوفة العناصر بالترتيب
+         items = [];
+         snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
+         uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
+         if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر` + (items.length!==1? '': '');
+         const diag = document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent=`Snapshot ✅ docs=${items.length} @ ${new Date().toLocaleTimeString()}`; }
+       }, err=>{
+         console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
+         const diag = document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Firestore snapshot error: '+(err.message||err); }
+       });
+    } catch(e){ uploadHint.textContent='خطأ في الاتصال بالسحابة'; }
   }
 
   function renderItem(it, insertTop){
-            logDiag('Upload success '+f.name+' size='+f.size+' bytes');
+      const wrapper = document.createElement('div');
       wrapper.className = 'preview-item';
       wrapper.dataset.id = it.id;
       wrapper.style.padding='8px';
@@ -416,25 +391,6 @@
 
   fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
   addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; if(!CLOUD_ACTIVE){ uploadHint.textContent='Firebase غير متصل'; return; } const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent = 'تمت إضافة رابط (سحابي)'; });
-  // زر اختبار السحابة: رفع نص صغير للتأكد من عمل Storage + Firestore
-  testCloudBtn && testCloudBtn.addEventListener('click', async ()=>{
-    if(!CLOUD_ACTIVE){ uploadHint.textContent='Firebase غير متصل'; return; }
-    try {
-      const id = makeId();
-      const ref = firebaseStorage.ref().child('shared/test_'+id+'.txt');
-      logDiag('بدء اختبار رفع test_'+id);
-      await ref.putString('ping '+new Date().toISOString());
-      const url = await ref.getDownloadURL();
-      logDiag('اختبار رفع ناجح، رابط: '+url);
-      uploadHint.textContent='اختبار رفع ناجح';
-    } catch(e){
-      logDiag('فشل اختبار الرفع: '+(e.message||e));
-      uploadHint.textContent='فشل اختبار الرفع';
-    }
-  });
-  // مراقبة حالة الشبكة
-  window.addEventListener('online', ()=> logDiag('المتصفح عاد متصل (online)'));
-  window.addEventListener('offline', ()=> logDiag('المتصفح أصبح غير متصل (offline)'));
 
   // تحميل (لن يعرض محلي إذا FORCE_CLOUD_ONLY مفعل بدون سحابة)
   loadState();
