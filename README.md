@@ -1,45 +1,86 @@
-# موقع Firebase Static
+## ديمو سايت (مشاركة ملفات + روابط)
 
-هذا مشروع موقع ثابت تم نشره باستخدام Firebase Hosting.
+موقع ثابت (Static) مستضاف على Firebase Hosting يدعم:
 
-## الروابط
-- Firebase Hosting: https://mysite-860da.web.app
-- نسخة GitHub Pages (إن وُجدت): https://ahmadnhan.github.io/demo-site/
+- عرض روابط ومشاريع.
+- رفع ملفات (صور / فيديو / أي ملف) إلى Firebase Storage وتسجيل بياناته في Firestore ليتزامن عبر الأجهزة.
+- fallback محلي (LocalStorage) في حال عدم تفعيل إعدادات Firebase.
+- شارة حالة توضح هل الوضع (سحابي) أو (محلي).
+- عداد للعناصر + مزامنة فورية (Realtime) عبر onSnapshot.
+- شريط تقدم أثناء رفع الملفات.
 
-## أوامر Git (أول مرة)
+### 1. المتطلبات
+1. حساب Firebase.
+2. تثبيت أداة Firebase CLI.
+3. (اختياري) إنشاء مفتاح وصول شخصي (PAT) لرفع الكود إلى GitHub.
+
+### 2. إعداد Firebase لأول مرة
+1. من لوحة Firebase أنشئ مشروع جديد (أو استخدم مشروع قائم).
+2. من Project Settings > General أنشئ Web App (بدون Hosting تلقائي إذا كان مفعّل سابقًا).
+3. انسخ القيم (apiKey, authDomain, projectId, storageBucket) وضعها داخل `public/firebase-config.js` مكان الفراغات.
+4. تأكد من أن الملف صار مثل:
 ```
-git remote add origin https://github.com/ahmadnhan/demo-site.git
-git branch -M main
-git push -u origin main
-```
-لاحقًا للدفع فقط:
-```
-git add .
-git commit -m "Update"
-git push
+window.FIREBASE_CONFIG = {
+  apiKey: "AI...",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com"
+};
 ```
 
-## الأوامر الأساسية Firebase
-1. تثبيت أدوات Firebase (مرة واحدة):
+### 3. القواعد (Rules)
+القواعد الحالية في `firestore.rules` و `storage.rules` تسمح بالكتابة لأي مستخدم حتى تاريخ 2025-12-31 (مؤقت). يجب تشديدها لاحقًا (مثال: السماح فقط للمستخدمين الموثقين auth != null).
+
+تشغيل النشر للقواعد:
 ```
-npm install -g firebase-tools
+firebase deploy --only firestore
+firebase deploy --only storage
 ```
-2. تسجيل الدخول:
-```
-firebase login
-```
-3. تشغيل محلي:
-```
-firebase emulators:start --only hosting
-```
-4. نشر:
+
+### 4. نشر (Hosting)
 ```
 firebase deploy --only hosting
 ```
+سيفترض `firebase.json` أن المجلد `public` هو الجذر.
 
-## هيكل المجلد
-- public/ يحتوي ملفات الموقع (index.html وغيرها).
-- firebase.json إعدادات الاستضافة.
+### 5. آلية العمل (رفع ملف)
+1. المستخدم يختار ملف.
+2. إذا كانت مفاتيح Firebase موجودة يتم:
+	- رفع الملف إلى Storage تحت المسار `shared/<id>_الاسم`.
+	- الحصول على رابط التحميل.
+	- حفظ مستند في Firestore (collection: `shared_items`).
+	- onSnapshot يعرض العنصر فورياً.
+3. إذا لم تكن Firebase مفعّلة (مفاتيح فارغة) يستخدم التخزين المحلي:
+	- ملفات صغيرة (≤ 2MB) تُحفظ Base64.
+	- الملفات الأكبر: إنشاء Object URL (للمعاينة المؤقتة فقط).
 
-## المساهمة
-ارفع فروع جديدة ثم افتح Pull Request.
+### 6. الحذف
+زر (إزالة) يحذف:
+- المستند من Firestore (إن وجد).
+- الملف الفعلي من Storage (إن وُجد storagePath).
+- ثم يحدّث العرض.
+
+### 7. الأمان الموصى به لاحقاً
+استبدل القاعدة الحالية بقاعدة تتطلب مستخدم موثق:
+```
+allow read: if true;
+allow write: if request.auth != null;
+```
+ويمكن إضافة قيود حجم ونوع الملف في واجهة العميل.
+
+### 8. تطوير مستقبلي (أفكار)
+- مصادقة مجهولة (Anonymous Auth) لتقييد الإضافة دون تسجيل يدوي.
+- فلترة / بحث داخل العناصر.
+- تقسيم نوعي (صور / فيديو / مستندات).
+- ضغط الصور قبل الرفع لتقليل الحجم.
+- واجهة تقدم تفصيلية (النسبة، السرعة، الوقت المتبقي).
+
+### 9. تشغيل محلي (اختبار سريع)
+يمكنك فتح `public/index.html` مباشرة في المتصفح (للوضع المحلي). للخصائص السحابية ستحتاج تشغيل `firebase serve` أو `firebase emulators:start` (إن احتجت محاكيات) ثم التصفح عبر localhost.
+
+### 10. تحديث الشارة
+إذا ظهرت الشارة (محلي) فهذا يعني أن مفاتيح Firebase غير مكتملة. بعد ملئها وإعادة النشر ستتحول إلى (سحابي).
+
+---
+ملاحظات: المفاتيح العمومية ليست سرية، لكن لا تضع أي أسرار أخرى داخل المستودع. احرص على تشديد القواعد قبل الإنتاج.
+

@@ -67,6 +67,9 @@
             
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
             <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8">0 عناصر</div>
+            <div id="uploadProgress" style="display:none;width:100%;background:#e2e8f0;border-radius:6px;height:8px;margin-top:8px;overflow:hidden">
+              <div id="uploadBar" style="height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width .2s"></div>
+            </div>
           </div>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
         </div>
@@ -240,31 +243,59 @@
       const actions=document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
       const saveBtn=document.createElement('button'); saveBtn.textContent='حفظ'; saveBtn.className='btn';
       saveBtn.onclick=async ()=>{ if(!url){ uploadHint.textContent='لا يوجد رابط'; return;} try{ const resp=await fetch(url); const blob=await resp.blob(); const obj=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=obj; a.download=it.name||'file'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj); uploadHint.textContent='تم التنزيل'; }catch(e){ window.open(url,'_blank','noopener'); } };
-      const removeBtn=document.createElement('button'); removeBtn.textContent='إزالة'; removeBtn.className='btn'; removeBtn.onclick=()=>{ wrapper.remove(); items = items.filter(x=> x.id !== it.id); saveState(); if(firebaseDb) firebaseDb.collection('shared_items').doc(it.id).delete().catch(()=>{}); uploadHint.textContent='حذف'; };
+  const removeBtn=document.createElement('button'); removeBtn.textContent='إزالة'; removeBtn.className='btn'; removeBtn.onclick=()=>{ wrapper.remove(); items = items.filter(x=> x.id !== it.id); saveState(); if(firebaseDb) firebaseDb.collection('shared_items').doc(it.id).delete().catch(()=>{}); if(firebaseStorage && it.storagePath){ firebaseStorage.ref().child(it.storagePath).delete().catch(()=>{}); } uploadHint.textContent='حذف'; };
       actions.appendChild(saveBtn); actions.appendChild(removeBtn);
 
       wrapper.appendChild(info); wrapper.appendChild(actions); sharePreview.appendChild(wrapper);
     }
 
   async function saveMetaCloud(it){ if(!firebaseDb) return; try{ await firebaseDb.collection('shared_items').doc(it.id).set(Object.assign({}, it, {updatedAt: firebase.firestore.FieldValue.serverTimestamp()})); }catch(e){ console.warn('save meta failed', e); }}
-  async function uploadFileToCloud(file){
+  function showProgress(){ const c=document.getElementById('uploadProgress'); if(c) c.style.display='block'; }
+  function setProgress(p){ const b=document.getElementById('uploadBar'); if(b) b.style.width = (Math.min(100, Math.max(0, p*100))).toFixed(1)+'%'; }
+  function hideProgress(){ const c=document.getElementById('uploadProgress'); if(c) c.style.display='none'; setProgress(0); }
+  async function uploadFileToCloud(file, onProgress){
     if(!firebaseStorage) throw new Error('No storage');
     const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
     const id = makeId();
     const path = `shared/${id}_${safeName}`;
     const ref = firebaseStorage.ref().child(path);
-    const snap = await ref.put(file);
-    const url = await snap.ref.getDownloadURL();
-    return { url, path, id };
+    return new Promise((resolve, reject)=>{
+      const task = ref.put(file);
+      task.on('state_changed', snap=>{ if(onProgress && snap.totalBytes) onProgress(snap.bytesTransferred / snap.totalBytes); }, err=> reject(err), async ()=>{ try{ const url = await task.snapshot.ref.getDownloadURL(); resolve({ url, path, id }); } catch(e){ reject(e); } });
+    });
   }
   function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`; }
-  function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.unshift(it); renderItem(it); if(CLOUD_ACTIVE){ saveMetaCloud(it); } else { saveState(); } updateCounter(); }
-  function handleFiles(files){ if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; } Array.from(files).forEach(async f=>{
+  function addAndPersistItem(obj){
+    const it = Object.assign({id: makeId()}, obj);
+    if(CLOUD_ACTIVE){
+      // الاعتماد على onSnapshot لإعادة الرسم وتفادي التكرار
+      saveMetaCloud(it);
+    } else {
+      items.unshift(it);
+      renderItem(it);
+      saveState();
+      updateCounter();
+    }
+  }
+  function handleFiles(files){
+    if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; }
+    Array.from(files).forEach(async f=>{
       if(CLOUD_ACTIVE){
-        try { uploadHint.textContent = `رفع ${f.name}...`; const res = await uploadFileToCloud(f); const meta = {kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path, id:res.id}; addAndPersistItem(meta); uploadHint.textContent = `تم رفع ${f.name}`; return; } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي — سيتم حفظ محلي'; }
+        try {
+          uploadHint.textContent = `رفع ${f.name}...`;
+          showProgress(); setProgress(0);
+          const res = await uploadFileToCloud(f, p=> setProgress(p));
+          const meta = {kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path, id:res.id};
+          addAndPersistItem(meta);
+          uploadHint.textContent = `تم رفع ${f.name}`;
+          hideProgress();
+          return;
+        } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي — سيتم حفظ محلي'; hideProgress(); }
       }
+      // Fallback محلي
       if(f.size <= MAX_PERSIST_BYTES){ const reader=new FileReader(); reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا`; }; reader.readAsDataURL(f); } else { const url = URL.createObjectURL(f); addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'}); uploadHint.textContent='معاينة فقط (ملف كبير)'; }
-    }); }
+    });
+  }
 
   fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
   addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent = CLOUD_ACTIVE? 'تمت إضافة رابط (سحابي)' : 'تمت إضافة رابط'; });
