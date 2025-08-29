@@ -219,16 +219,16 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="firebase-config.js"></script>
   <script>
     // Advanced client-side preview for multiple files + links with local persistence
     // Firebase/Firestore optional integration for cross-device metadata
     // Fill FIREBASE config below to enable remote metadata storage
-    const FIREBASE = {
+    const FIREBASE = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) ? window.FIREBASE_CONFIG : {
       apiKey: '',
       authDomain: '',
       projectId: '',
       storageBucket: '' // e.g. 'your-project-id.appspot.com'
-      // messagingSenderId, appId optional
     };
   // تفعيل الوضع السحابي فقط: لا حفظ محلي عند توافر Firebase
   const ALWAYS_REMOTE = true; // نية المستخدم
@@ -247,21 +247,27 @@
   REMOTE_ACTIVE = ALWAYS_REMOTE && FIREBASE_ENABLED;
     // تحميل إعدادات من localStorage إن وجدت
     (function loadDynamicFirebaseConfig(){
+      // أولوية: ملف firebase-config.js ثم المخزن المحلي (للرجوع)
       try{
+        if(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey){
+          if(!firebase.apps.length){ firebase.initializeApp(window.FIREBASE_CONFIG); }
+          firebaseDb = firebase.firestore();
+          REMOTE_ACTIVE = ALWAYS_REMOTE; setCloudStatus && setCloudStatus('متصل بالسحابة (ملف إعداد)', true); subscribeRemote && subscribeRemote();
+          return;
+        }
         const raw = localStorage.getItem('demo_fb_cfg');
         if(raw){
           const cfg = JSON.parse(raw);
           if(cfg.apiKey && !firebase.apps.length){
-            FIREBASE.apiKey = cfg.apiKey; FIREBASE.authDomain = cfg.authDomain; FIREBASE.projectId = cfg.projectId; FIREBASE.storageBucket = cfg.storageBucket;
-            try{ firebase.initializeApp(FIREBASE); firebaseDb = firebase.firestore(); }catch(_e){}
+            firebase.initializeApp(cfg); firebaseDb = firebase.firestore(); REMOTE_ACTIVE = ALWAYS_REMOTE; setCloudStatus && setCloudStatus('متصل بالسحابة (محلي)', true); subscribeRemote && subscribeRemote();
           }
         }
-      }catch(e){}
+      }catch(e){ console.warn('dynamic cfg load failed', e); }
     })();
     // تحديث الحالة على الواجهة
     function setCloudStatus(txt, good){
       const el = document.getElementById('cloudStatus'); if(!el) return; el.textContent = txt; el.style.color = good? 'var(--accent,#0a7c5f)': 'var(--muted,#666)'; }
-    if(firebase.apps && firebase.apps.length){ setCloudStatus('متصل بالسحابة', true); REMOTE_ACTIVE = ALWAYS_REMOTE; subscribeRemote && subscribeRemote(); }
+  if(firebase.apps && firebase.apps.length && (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey)){ setCloudStatus('متصل بالسحابة (ملف)', true); REMOTE_ACTIVE = ALWAYS_REMOTE; subscribeRemote && subscribeRemote(); }
     window.addEventListener('DOMContentLoaded', ()=>{
       const k = document.getElementById('fbApiKey');
       if(!k) return;
