@@ -209,6 +209,23 @@
     const urlInput = document.getElementById('urlInput');
     const addUrlBtn = document.getElementById('addUrlBtn');
 
+    // Optional Cloudinary config: fill these to enable cloud uploads
+    const CLOUDINARY = {
+      cloudName: '', // e.g. 'your-cloud-name'
+      uploadPreset: '' // e.g. 'unsigned-preset' (must be created in your Cloudinary dashboard)
+    };
+
+    async function uploadToCloudinary(file){
+      if(!CLOUDINARY.cloudName || !CLOUDINARY.uploadPreset) throw new Error('cloudinary not configured');
+      const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/upload`;
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', CLOUDINARY.uploadPreset);
+      const resp = await fetch(url, { method: 'POST', body: fd });
+      if(!resp.ok) throw new Error('upload failed');
+      return resp.json(); // contains secure_url etc.
+    }
+
   // (زر مسح المحفوظات أُزيل — لا حاجة لإنشائه هنا)
 
     const STORAGE_KEY = 'demo_share_items_v1';
@@ -358,13 +375,32 @@
     function handleFiles(files){
       if(!files || files.length === 0){ uploadHint.textContent = 'لم يتم اختيار ملفات'; return }
       uploadHint.textContent = `تم اختيار ${files.length} ملف`;
-      Array.from(files).forEach(f=>{
+      Array.from(files).forEach(async (f)=>{
+        // If Cloudinary configured, try upload first (async)
+        if(CLOUDINARY.cloudName && CLOUDINARY.uploadPreset){
+          uploadHint.textContent = `جارٍ رفع ${f.name} إلى السحابة...`;
+          try{
+            const res = await uploadToCloudinary(f);
+            const remote = res.secure_url || res.url;
+            if(remote){
+              addAndPersistItem({kind:'file', name: f.name, url: remote, type: f.type || 'application/octet-stream', uploaded: true});
+              uploadHint.textContent = `تم رفع ${f.name} وحفظ الرابط`; 
+              return;
+            }
+          }catch(err){
+            console.warn('cloud upload failed', err);
+            // fall through to local handling below
+          }
+        }
+
+        // local fallback: persist small files as dataURL, or preview large ones
         if(f.size <= MAX_PERSIST_BYTES){
           // read as dataURL and persist
           const reader = new FileReader();
           reader.onload = (ev)=>{
             const dataUrl = ev.target.result;
             addAndPersistItem({kind:'file', name: f.name, url: dataUrl, dataUrl, type: f.type || 'application/octet-stream'});
+            uploadHint.textContent = `تم حفظ ${f.name} محليًا`;
           };
           reader.readAsDataURL(f);
         } else {
