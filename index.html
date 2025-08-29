@@ -52,6 +52,25 @@
 
   <!-- links section removed per request -->
 
+      <!-- New: file sharing card (ظهر قبل تواصل) -->
+      <section id="share" class="section">
+        <h2 style="text-align:center">مشاركة ملفات عبر الموقع</h2>
+        <div class="card">
+          <div class="card-head">مشاركة ملفات عبر الموقع</div>
+          <p class="muted">يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.</p>
+          <div class="actions">
+            <label class="btn" style="cursor:pointer">
+              <input type="file" id="fileInput" style="display:none" accept="*/*" multiple />
+              رفع ملف
+            </label>
+            <input id="urlInput" type="url" placeholder="الصق رابط (صورة/فيديو/ميديا) وأضف" style="margin-inline-start:8px;padding:6px;border-radius:6px;border:1px solid var(--muted,#ccc)" />
+            <button id="addUrlBtn" class="btn" style="margin-inline-start:6px">أضف رابط</button>
+            <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
+          </div>
+          <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
+        </div>
+      </section>
+
     <section id="contact" class="section">
       <h2 data-i18n="contact_h2">تواصل</h2>
       <div class="contact">
@@ -179,6 +198,202 @@
       });
     },{threshold:0.12});
     document.querySelectorAll('.card, .section').forEach(el=>{ el.classList.add('reveal'); io.observe(el) });
+  </script>
+  <script>
+    // Advanced client-side preview for multiple files + links with local persistence
+    const fileInput = document.getElementById('fileInput');
+    const uploadHint = document.getElementById('uploadHint');
+    const sharePreview = document.getElementById('sharePreview');
+    const urlInput = document.getElementById('urlInput');
+    const addUrlBtn = document.getElementById('addUrlBtn');
+
+  // (زر مسح المحفوظات أُزيل — لا حاجة لإنشائه هنا)
+
+    const STORAGE_KEY = 'demo_share_items_v1';
+    const MAX_PERSIST_BYTES = 2 * 1024 * 1024; // 2MB per file
+    let items = []; // persisted items
+
+    function saveState(){
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+      catch(e){ console.warn('save failed', e); }
+    }
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return;
+        items = JSON.parse(raw) || [];
+        items.forEach(it=> renderItem(it));
+        if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`;
+      }catch(e){ console.warn('load failed', e); }
+    }
+
+    function makeId(){ return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
+
+    function renderItem(it){
+      // reuse addPreview-like DOM but don't repersist
+      const wrapper = document.createElement('div');
+      wrapper.className = 'preview-item';
+      wrapper.dataset.id = it.id;
+      wrapper.style.padding = '8px';
+      wrapper.style.border = '1px solid rgba(0,0,0,0.06)';
+      wrapper.style.borderRadius = '8px';
+      wrapper.style.marginBottom = '8px';
+      wrapper.style.display = 'flex';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = '10px';
+
+      const info = document.createElement('div');
+      info.style.flex = '1';
+      const title = document.createElement('div');
+      title.textContent = it.name || it.url;
+      title.style.fontWeight = '600';
+      info.appendChild(title);
+
+      const url = it.dataUrl || it.url;
+
+      if(it.type && it.type.startsWith('image/') && url){
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = it.name || '';
+        img.style.maxWidth = '120px';
+        img.style.borderRadius = '6px';
+        img.style.objectFit = 'cover';
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', ()=> window.open(url, '_blank', 'noopener'));
+        wrapper.appendChild(img);
+      } else if(it.type && it.type.startsWith('video/') && url){
+        const vid = document.createElement('video');
+        vid.src = url;
+        vid.controls = true;
+        vid.style.maxWidth = '160px';
+        vid.style.borderRadius = '6px';
+        vid.style.cursor = 'pointer';
+        vid.addEventListener('click', ()=> window.open(url, '_blank', 'noopener'));
+        wrapper.appendChild(vid);
+      } else {
+        const fileIcon = document.createElement('div');
+        fileIcon.textContent = '📄';
+        fileIcon.style.fontSize = '40px';
+        fileIcon.style.lineHeight = '1';
+        fileIcon.style.marginInlineEnd = '8px';
+        fileIcon.style.cursor = 'pointer';
+        if(url) fileIcon.addEventListener('click', ()=> window.open(url, '_blank', 'noopener'));
+        wrapper.appendChild(fileIcon);
+      }
+
+      const actions = document.createElement('div');
+      actions.style.display = 'flex';
+      actions.style.flexDirection = 'column';
+      actions.style.gap = '6px';
+
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = 'حفظ';
+      saveBtn.className = 'btn';
+      // download helper: supports data: and object URLs; tries fetch for external URLs
+      async function downloadUrl(urlToFetch, filename){
+        try{
+          if(urlToFetch.startsWith('data:') || urlToFetch.startsWith('blob:')){
+            const a = document.createElement('a');
+            a.href = urlToFetch;
+            a.download = filename || 'file';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            return true;
+          }
+          // try fetching as blob
+          const resp = await fetch(urlToFetch, {mode: 'cors'});
+          if(!resp.ok) throw new Error('fetch failed');
+          const blob = await resp.blob();
+          const obj = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = obj;
+          a.download = filename || (urlToFetch.split('/').pop().split('?')[0] || 'file');
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(obj);
+          return true;
+        }catch(e){
+          return false;
+        }
+      }
+
+      saveBtn.addEventListener('click', async ()=>{
+        if(!url){ uploadHint.textContent = 'لا يوجد رابط للحفظ'; return }
+        uploadHint.textContent = 'جاري التحضير للحفظ...';
+        const ok = await downloadUrl(url, (it && it.name) || 'file');
+        if(ok) uploadHint.textContent = 'تم تنزيل الملف';
+        else { uploadHint.textContent = 'تعذر التنزيل تلقائيًا — سيفتح في تبويب جديد'; window.open(url, '_blank', 'noopener'); }
+      });
+      actions.appendChild(saveBtn);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = 'إزالة';
+      removeBtn.className = 'btn';
+      removeBtn.addEventListener('click', ()=>{
+        wrapper.remove();
+        // also remove from persisted items if exists
+        items = items.filter(x=> x.id !== it.id);
+        saveState();
+      });
+      actions.appendChild(removeBtn);
+
+      wrapper.appendChild(info);
+      wrapper.appendChild(actions);
+      sharePreview.appendChild(wrapper);
+    }
+
+    function addAndPersistItem(obj){
+      // obj: {kind:'file'|'link', name, url, type, dataUrl?}
+      const it = Object.assign({id: makeId()}, obj);
+      items.push(it);
+      saveState();
+      renderItem(it);
+    }
+
+    function handleFiles(files){
+      if(!files || files.length === 0){ uploadHint.textContent = 'لم يتم اختيار ملفات'; return }
+      uploadHint.textContent = `تم اختيار ${files.length} ملف`;
+      Array.from(files).forEach(f=>{
+        if(f.size <= MAX_PERSIST_BYTES){
+          // read as dataURL and persist
+          const reader = new FileReader();
+          reader.onload = (ev)=>{
+            const dataUrl = ev.target.result;
+            addAndPersistItem({kind:'file', name: f.name, url: dataUrl, dataUrl, type: f.type || 'application/octet-stream'});
+          };
+          reader.readAsDataURL(f);
+        } else {
+          // too large to persist, create transient preview using objectURL
+          const url = URL.createObjectURL(f);
+          renderItem({id: makeId(), kind:'file', name: f.name, url, type: f.type});
+          uploadHint.textContent = 'ملفات كبيرة لن تُحفظ محليًا، فقط معاينة مؤقتة';
+        }
+      });
+    }
+
+    fileInput && fileInput.addEventListener('change', (e)=> handleFiles(e.target.files));
+
+    addUrlBtn && addUrlBtn.addEventListener('click', ()=>{
+      const v = (urlInput && urlInput.value || '').trim();
+      if(!v) return;
+      const ext = v.split('.').pop().toLowerCase().split(/[#?]/)[0];
+      let type = '';
+      if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type = 'image/' + (ext==='jpg'?'jpeg':ext);
+      if(['mp4','webm','ogg'].includes(ext)) type = 'video/' + ext;
+      addAndPersistItem({kind:'link', name: v.split('/').pop() || v, url: v, type});
+      uploadHint.textContent = 'تمت إضافة رابط محفوظ (تجريبي)';
+      urlInput.value = '';
+    });
+
+  // مسح المحفوظات مُدار الآن يدويًا إن لزم؛ زر الإزالة أُزيل من الواجهة
+
+  // labels contain the file input; default label behavior opens the picker — no manual click needed
+
+    // load persisted items on start
+    loadState();
   </script>
  
 </body>
