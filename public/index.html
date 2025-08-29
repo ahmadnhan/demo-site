@@ -211,6 +211,25 @@
         hint && (hint.textContent = 'مفاتيح Firebase ناقصة: ' + missing.join(', '));
       }
     }
+    // فحص صحة التخزين
+    if(firebaseStorage){
+      (async ()=>{
+        try {
+          logDiag('بدء فحص التخزين bucket='+(firebase.app().options.storageBucket||'?'));
+          const testRef = firebaseStorage.ref().child('shared/__health__/probe_'+Date.now()+'.txt');
+          await testRef.putString('health');
+          const url = await testRef.getDownloadURL();
+          logDiag('نجح فحص التخزين ✅');
+        } catch(e){
+          logDiag('فحص التخزين فشل ❌ code='+(e.code||'')+' msg='+(e.message||e));
+          if(String(e.code).includes('storage/')){
+            hint && (hint.textContent = 'تعذر الوصول للتخزين: '+e.code);
+          }
+        }
+      })();
+    } else {
+      logDiag('لا يوجد firebaseStorage (فشل تهيئة)');
+    }
   });
 
     // واجهة العناصر
