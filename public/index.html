@@ -279,7 +279,7 @@
       const title = document.createElement('div'); title.textContent = it.name || it.url; title.style.fontWeight='600'; info.appendChild(title);
 
       const url = it.dataUrl || it.url;
-      if(it.type && it.type.startsWith('image/') && url){ const img=document.createElement('img'); img.src=url; img.alt=it.name||''; img.style.maxWidth='120px'; img.style.borderRadius='6px'; img.style.objectFit='cover'; img.style.cursor='pointer'; img.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(img); }
+  if(it.type && it.type.startsWith('image/') && url){ const img=document.createElement('img'); img.src=url; img.alt=it.name||''; img.style.maxWidth='120px'; img.style.borderRadius='6px'; img.style.objectFit='cover'; img.style.cursor='pointer'; img.onload=()=>{ try{ logDiag('صورة محملة '+(it.name||it.id)); }catch(_){} }; img.onerror=()=>{ img.style.border='2px solid #dc2626'; img.title='فشل تحميل الصورة'; try{ logDiag('فشل تحميل الصورة '+(it.name||it.id)); }catch(_){} }; img.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(img); }
       else if(it.type && it.type.startsWith('video/') && url){ const vid=document.createElement('video'); vid.src=url; vid.controls=true; vid.style.maxWidth='160px'; vid.style.borderRadius='6px'; wrapper.appendChild(vid); }
       else { const fileIcon=document.createElement('div'); fileIcon.textContent='📄'; fileIcon.style.fontSize='40px'; fileIcon.style.cursor='pointer'; if(url) fileIcon.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(fileIcon); }
 
@@ -295,6 +295,7 @@
       } else {
         sharePreview.appendChild(wrapper);
       }
+  try{ logDiag('renderItem '+it.id+' kind='+(it.kind||'file')+' type='+(it.type||'')); }catch(_){ }
     }
 
   async function saveMetaCloud(it){
@@ -357,6 +358,7 @@
   renderItem(it, true);
     updateCounter();
     saveMetaCloud(it);
+  try{ logDiag('addAndPersistItem '+it.id+' name='+(it.name||'')); }catch(_){ }
   }
   function handleFiles(files){
     if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; }
