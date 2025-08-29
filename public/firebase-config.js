@@ -4,8 +4,10 @@
 // إعدادات Firebase: ضع القيم الخاصة بمشروعك هنا ليعمل الرفع السحابي
 // (هذه مفاتيح عامة للويب وليست سرية؛ احصل عليها من Project Settings > General > Your apps (Web))
 window.FIREBASE_CONFIG = {
-	apiKey: "",        // مثال: AIzaSy...XYZ
-	authDomain: "",    // your-project.firebaseapp.com
-	projectId: "",     // your-project
-	storageBucket: ""  // your-project.appspot.com
+	apiKey: "AIzaSyAGscfjauqkbJGtBozqxuvnaRA-VWMFrpU",
+	authDomain: "mysite-860da.firebaseapp.com",
+	projectId: "mysite-860da",
+	storageBucket: "mysite-860da.appspot.com", // تصحيح النطاق إلى appspot.com
+	messagingSenderId: "389399285990",
+	appId: "1:389399285990:web:a6aab5f6e28c2ccffbab27"
 };
