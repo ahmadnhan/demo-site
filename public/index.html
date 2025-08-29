@@ -155,31 +155,8 @@
     document.querySelectorAll('.card, .section').forEach(el=>{ el.classList.add('reveal'); io.observe(el) });
   </script>
   
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-  <script src="firebase-config.js"></script>
   <script>
-    // Advanced client-side preview for multiple files + links with local persistence
-    // Firebase/Firestore optional integration for cross-device metadata
-    const FIREBASE = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) ? window.FIREBASE_CONFIG : {
-      apiKey: '', authDomain: '', projectId: '', storageBucket: ''
-    };
-    const ALWAYS_REMOTE = true; // نية التشغيل السحابي إذا توفرت المفاتيح
-    let REMOTE_ACTIVE = false;
-    let firebaseDb = null;
-    function initFirebase(){
-      try{
-        if(!FIREBASE.apiKey || !FIREBASE.projectId) return false;
-        if(!firebase.apps.length) firebase.initializeApp(FIREBASE);
-        firebaseDb = firebase.firestore();
-        return true;
-      }catch(e){ console.warn('firebase init failed', e); return false; }
-    }
-    const FIREBASE_ENABLED = initFirebase();
-    REMOTE_ACTIVE = ALWAYS_REMOTE && FIREBASE_ENABLED;
-
-    // عناصر الواجهة
+    // منطق محلي فقط لمشاركة الملفات (لا اتصال سحابي)
     const fileInput = document.getElementById('fileInput');
     const uploadHint = document.getElementById('uploadHint');
     const sharePreview = document.getElementById('sharePreview');
@@ -192,25 +169,8 @@
 
     function makeId(){ return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
 
-    function saveState(){ if(REMOTE_ACTIVE) return; try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }catch(e){} }
-    function loadState(){
-      if(REMOTE_ACTIVE){ uploadHint.textContent = 'سيرفع إلى السحابة (أدخل إعدادات Firebase)'; return; }
-      try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ items = JSON.parse(raw)||[]; items.forEach(renderItem); if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`; } }catch(e){}
-    }
-
-    async function saveMetaToFirestore(it){
-      if(!firebaseDb) return; try{ await firebaseDb.collection('shared_items').doc(it.id).set(Object.assign({}, it, {updatedAt: firebase.firestore.FieldValue.serverTimestamp()})); }catch(e){ console.warn('firestore save failed', e); }
-    }
-
-    async function uploadToFirebaseStorage(file){
-      if(!FIREBASE_ENABLED || !FIREBASE.storageBucket) throw new Error('Firebase Storage غير مضبوط');
-      const id = makeId();
-      const path = `shared/${id}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_')}`;
-      const ref = firebase.storage().ref().child(path);
-      const snap = await ref.put(file);
-      const url = await snap.ref.getDownloadURL();
-      return { url, path, id };
-    }
+  function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }catch(e){} }
+  function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ items = JSON.parse(raw)||[]; items.forEach(renderItem); if(items.length) uploadHint.textContent = `تحميل ${items.length} عنصر محفوظ`; } }catch(e){} }
 
     function renderItem(it){
       const wrapper = document.createElement('div');
@@ -241,85 +201,15 @@
       wrapper.appendChild(info); wrapper.appendChild(actions); sharePreview.appendChild(wrapper);
     }
 
-    function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.push(it); renderItem(it); if(!REMOTE_ACTIVE) saveState(); if(firebaseDb) saveMetaToFirestore(it); }
+  function addAndPersistItem(obj){ const it = Object.assign({id: makeId()}, obj); items.push(it); renderItem(it); saveState(); }
+  function handleFiles(files){ if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; } Array.from(files).forEach(f=>{ if(f.size <= MAX_PERSIST_BYTES){ const reader=new FileReader(); reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا`; }; reader.readAsDataURL(f); } else { const url = URL.createObjectURL(f); addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'}); uploadHint.textContent='معاينة فقط (ملف كبير)'; } }); }
 
-    function handleFiles(files){ if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; } Array.from(files).forEach(async f=>{ if(FIREBASE_ENABLED && FIREBASE.storageBucket){ uploadHint.textContent=`رفع ${f.name}...`; try{ const res = await uploadToFirebaseStorage(f); addAndPersistItem({kind:'file', name:f.name, url:res.url, type:f.type||'application/octet-stream', storagePath:res.path}); uploadHint.textContent=`تم رفع ${f.name}`; return; }catch(e){ console.warn('firebase upload failed', e); } }
-      if(f.size <= MAX_PERSIST_BYTES){ const reader=new FileReader(); reader.onload=ev=>{ addAndPersistItem({kind:'file', name:f.name, url:ev.target.result, dataUrl:ev.target.result, type:f.type||'application/octet-stream'}); uploadHint.textContent=`تم حفظ ${f.name} محليًا`; }; reader.readAsDataURL(f); } else { const url = URL.createObjectURL(f); addAndPersistItem({kind:'file', name:f.name, url, type:f.type||'application/octet-stream'}); uploadHint.textContent='معاينة فقط (ملف كبير)'; } }); }
-
-    fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
-    addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent='تمت إضافة رابط'; urlInput.value=''; });
+  fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
+  addUrlBtn && addUrlBtn.addEventListener('click', ()=>{ const v=(urlInput.value||'').trim(); if(!v) return; const ext=v.split('.').pop().toLowerCase().split(/[#?]/)[0]; let type=''; if(['png','jpg','jpeg','webp','gif','svg'].includes(ext)) type='image/'+(ext==='jpg'?'jpeg':ext); if(['mp4','webm','ogg'].includes(ext)) type='video/'+ext; addAndPersistItem({kind:'link', name:v.split('/').pop()||v, url:v, type}); uploadHint.textContent='تمت إضافة رابط'; urlInput.value=''; });
 
     // تحميل الحالة المحلية
     loadState();
   </script>
 
-  <section class="section" id="cloud-config" style="margin-top:32px">
-        <h2 style="text-align:center">إعداد Firebase للسحابة</h2>
-        <div class="card" style="max-width:640px;margin:0 auto">
-          <p class="muted">ضع مفاتيح الويب (علنية) لتفعيل حفظ الملفات في السحابة (Firestore + Storage). اتركها فارغة للاستخدام المحلي.</p>
-          <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
-            <input id="fbApiKey" placeholder="apiKey" />
-            <input id="fbAuthDomain" placeholder="authDomain" />
-            <input id="fbProjectId" placeholder="projectId" />
-            <input id="fbBucket" placeholder="storageBucket" />
-          </div>
-          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-            <button id="saveFbCfg" class="btn">حفظ التهيئة</button>
-            <button id="clearFbCfg" class="btn">مسح</button>
-            <span id="cloudStatus" class="muted" style="align-self:center">غير متصل</span>
-          </div>
-        </div>
-      </section>
-
-  <script>
-  // بعد تعريف المتغيرات الحالية سنضيف دعم واجهة التكوين
-  (function(){
-    const apiEl = document.getElementById('fbApiKey');
-    if(!apiEl) return; // لم تُحقن الواجهة بعد
-    const authEl = document.getElementById('fbAuthDomain');
-    const projEl = document.getElementById('fbProjectId');
-    const buckEl = document.getElementById('fbBucket');
-    const statusEl = document.getElementById('cloudStatus');
-
-    function updateStatus(txt, ok){ if(statusEl){ statusEl.textContent = txt; statusEl.style.color = ok? 'var(--accent,#0a7c5f)' : 'var(--muted,#666)'; } }
-
-    // استرجاع مخزن (لو لم تكن القيم في الملف)
-    try{
-      if(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey){
-        apiEl.value = window.FIREBASE_CONFIG.apiKey || '';
-        authEl.value = window.FIREBASE_CONFIG.authDomain || '';
-        projEl.value = window.FIREBASE_CONFIG.projectId || '';
-        buckEl.value = window.FIREBASE_CONFIG.storageBucket || '';
-        updateStatus('تهيئة من الملف', true);
-      } else {
-        const raw = localStorage.getItem('fb_cfg_dynamic');
-        if(raw){ const cfg = JSON.parse(raw); apiEl.value = cfg.apiKey||''; authEl.value=cfg.authDomain||''; projEl.value=cfg.projectId||''; buckEl.value=cfg.storageBucket||''; }
-      }
-    }catch(e){}
-
-    async function reinit(cfg){
-      try{
-        if(!cfg.apiKey || !cfg.projectId){ updateStatus('أكمل الحقول المطلوبة', false); return; }
-        // إعادة تهيئة
-        if(firebase.apps && firebase.apps.length){ /* لا إعادة */ }
-        else { firebase.initializeApp(cfg); }
-        firebaseDb = firebase.firestore();
-        FIREBASE.apiKey = cfg.apiKey; FIREBASE.authDomain = cfg.authDomain; FIREBASE.projectId = cfg.projectId; FIREBASE.storageBucket = cfg.storageBucket;
-        REMOTE_ACTIVE = true;
-        updateStatus('متصل بالسحابة', true);
-      }catch(e){ console.warn('init error', e); updateStatus('فشل التهيئة', false); }
-    }
-
-    document.getElementById('saveFbCfg').addEventListener('click', ()=>{
-      const cfg = { apiKey: apiEl.value.trim(), authDomain: authEl.value.trim(), projectId: projEl.value.trim(), storageBucket: buckEl.value.trim() };
-      if(!cfg.apiKey || !cfg.projectId){ updateStatus('أكمل apiKey و projectId', false); return; }
-      localStorage.setItem('fb_cfg_dynamic', JSON.stringify(cfg));
-      reinit(cfg);
-    });
-    document.getElementById('clearFbCfg').addEventListener('click', ()=>{
-      localStorage.removeItem('fb_cfg_dynamic'); updateStatus('تم المسح — محلي فقط', false); REMOTE_ACTIVE=false; try{ if(firebase.apps && firebase.apps.length) firebase.app().delete(); }catch(e){}
-    });
-  })();
-  </script>
 </body>
 </html>
