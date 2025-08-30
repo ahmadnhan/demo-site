@@ -21,11 +21,11 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 /* 3D stage */
 .grid, .section{perspective:1400px;perspective-origin:50% 40%;}
 /* Uiverse.io style card (dylanharriscameron) */
-.card{position:relative;width:100%;min-height:230px;border-radius:18px;z-index:1111;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;background:transparent;padding:14px 16px 18px;margin:0;--blob-radius:clamp(80px,42%,130px);}
+.card{position:relative;width:100%;min-height:230px;border-radius:18px;z-index:1111;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;background:transparent;padding:14px 16px 18px;margin:0;}
 .card::before,.card::after{display:none}
 .card .bg{position:absolute;top:6px;left:6px;right:6px;bottom:6px;z-index:2;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:14px;overflow:hidden;outline:2px solid #fff;}
-.card .blob{position:absolute;z-index:1;top:50%;left:50%;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,0,0,0.75),rgba(255,0,0,0) 70%);opacity:.85;filter:blur(28px) saturate(180%);animation:blob-orbit 12s linear infinite;pointer-events:none;mix-blend-mode:screen;transform:translate(-50%,-50%);}
-@keyframes blob-orbit{0%{transform:translate(-50%,-50%) rotate(0deg) translateX(var(--blob-radius)) rotate(0deg);}100%{transform:translate(-50%,-50%) rotate(360deg) translateX(var(--blob-radius)) rotate(-360deg);}}
+.card .blob{position:absolute;z-index:1;top:50%;left:50%;width:150px;height:150px;border-radius:50%;background-color:#ff0000;opacity:1;filter:blur(12px);animation:blob-bounce 5s infinite ease;}
+@keyframes blob-bounce{0%{transform:translate(-100%,-100%) translate3d(0,0,0);}25%{transform:translate(-100%,-100%) translate3d(100%,0,0);}50%{transform:translate(-100%,-100%) translate3d(100%,100%,0);}75%{transform:translate(-100%,-100%) translate3d(0,100%,0);}100%{transform:translate(-100%,-100%) translate3d(0,0,0);}}
 /* Adjust inner content layering */
 .card > *:not(.bg):not(.blob){position:relative;z-index:3;padding:0 4px;text-align:center;max-width:100%}
 /* Responsive fallback: when grid gives more space keep fixed size centered */
