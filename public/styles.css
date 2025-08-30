@@ -28,12 +28,11 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 .card{padding:22px 24px 26px;}
 /* Decorative layers (glass) */
 .card .bg{position:absolute;top:5px;left:5px;right:5px;bottom:5px;background:linear-gradient(145deg,rgba(255,255,255,0.55),rgba(255,255,255,0.08));backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border-radius:18px;z-index:1;outline:1px solid rgba(255,255,255,0.35);transition:opacity .6s,transform 1.1s;}
-.card .blob{position:absolute;inset:0;z-index:0;border-radius:inherit;background:linear-gradient(90deg,#0ea5e9,#38bdf8,#0ea5e9);background-size:300% 100%;animation:edgeFlow 8s linear infinite;opacity:.9;pointer-events:none;}
-/* Inner panel already (.bg) inset 5px => reveals animated border */
+.card .blob{position:absolute;z-index:0;top:0;left:0;width:55%;height:55%;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(14,165,233,0.9),rgba(14,165,233,0.15) 60%,rgba(14,165,233,0) 72%);filter:blur(18px);animation:blob-orbit 14s linear infinite;opacity:.85;}
 .card:hover .bg{opacity:.92}
 .card *:not(.bg):not(.blob){position:relative;z-index:2;}
-@keyframes edgeFlow{0%{background-position:0% 50%;}50%{background-position:200% 50%;}100%{background-position:0% 50%;}}
-@media (prefers-reduced-motion:reduce){.card .blob{animation:none;opacity:0.6}}
+@keyframes blob-orbit{0%{transform:translate(0,0);}25%{transform:translate(82%,0);}50%{transform:translate(82%,82%);}75%{transform:translate(0,82%);}100%{transform:translate(0,0);}}
+@media (prefers-reduced-motion:reduce){.card .blob{animation:none;opacity:0.35}}
 .card-head{position:relative}
 .card-head{font-weight:800;margin-bottom:8px;font-size:18px;color:var(--black)}
 .muted{color:var(--muted);font-size:14px}
