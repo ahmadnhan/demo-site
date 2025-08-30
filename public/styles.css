@@ -43,6 +43,11 @@ h2[data-i18n="projects_h2"]{font-weight:800;letter-spacing:.5px;text-shadow:0 2p
 .actions .muted[data-i18n="converter_site_link"], .actions .muted[data-i18n="app_converter_title"]{ font-size:18px; font-weight:800; color:var(--accent); align-self:center; margin-inline-start:6px; }
 .btn{ background: linear-gradient(180deg,var(--accent) 0%, #66d48a 100%); color:#042217; padding:10px 16px; border-radius:12px; text-decoration:none; font-weight:800; letter-spacing:0.2px; display:inline-flex;align-items:center;gap:8px; box-shadow:0 8px 20px rgba(8,167,74,0.18), inset 0 -2px 0 rgba(0,0,0,0.06); border:1px solid rgba(0,0,0,0.06); transition:transform .14s ease,box-shadow .14s ease,opacity .14s; }
 .btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(8,167,74,0.16);opacity:.98}
+/* Blue button variant */
+.btn-blue{background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);color:#eef5ff;box-shadow:0 8px 20px rgba(37,99,235,0.28),inset 0 -2px 0 rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.05);}
+.btn-blue:hover{box-shadow:0 18px 42px rgba(37,99,235,0.32);}
+.dark .btn-blue{background:linear-gradient(180deg,#1d4ed8 0%,#1e40af 100%);color:#e6f0ff;box-shadow:0 8px 22px rgba(0,0,0,0.55),inset 0 -2px 0 rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);}
+.dark .btn-blue:hover{box-shadow:0 18px 46px rgba(0,0,0,0.6);}
 .site-footer{margin-top:38px;color:#fff;text-align:center;padding:24px 0;background:var(--black);flex-shrink:0}
 .dark body{background:#071024;color:#e6eef6}
 .dark .card{background:transparent;color:#e6eef6;box-shadow:20px 20px 60px #0b1621,-20px -20px 60px #162c42;}
