@@ -52,6 +52,9 @@ h2[data-i18n="projects_h2"]{font-weight:800;letter-spacing:.5px;text-shadow:0 2p
 .card-head{font-weight:800;margin-bottom:8px;font-size:18px;color:var(--black)}
 .muted{color:var(--muted);font-size:14px}
 .actions{margin-top:14px;display:flex;gap:12px;align-items:center}
+/* خصيصاً لبطاقة المشاركة: عرض العناصر عمودياً ليظهر التنبيه تحت زر الرفع */
+#shareCard .actions{flex-direction:column;align-items:flex-start;gap:6px}
+#shareCard #uploadHint{margin-top:0;font-size:13px}
 .actions .muted[data-i18n="converter_site_link"], .actions .muted[data-i18n="app_converter_title"]{ font-size:18px; font-weight:800; color:var(--accent); align-self:center; margin-inline-start:6px; }
 .btn{ background: linear-gradient(180deg,var(--accent) 0%, #66d48a 100%); color:#042217; padding:10px 16px; border-radius:12px; text-decoration:none; font-weight:800; letter-spacing:0.2px; display:inline-flex;align-items:center;gap:8px; box-shadow:0 8px 20px rgba(8,167,74,0.18), inset 0 -2px 0 rgba(0,0,0,0.06); border:1px solid rgba(0,0,0,0.06); transition:transform .14s ease,box-shadow .14s ease,opacity .14s; }
 .btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(8,167,74,0.16);opacity:.98}
