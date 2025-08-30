@@ -75,6 +75,14 @@
           <div id="dropZone" style="margin-top:8px;padding:18px;border:2px dashed #94a3b8;border-radius:10px;text-align:center;font-size:14px;color:#64748b;cursor:copy;">
             اسحب وأفلت الصور أو الفيديو هنا
           </div>
+          <div id="storageHelp" style="display:none;margin-top:12px;padding:12px;border:1px solid #f59e0b;background:#fffbeb;border-radius:8px;font-size:13px;line-height:1.5;color:#92400e">
+            <strong>ملاحظة:</strong> يبدو أن Firebase Storage غير مُفعل أو إعداد CORS غير مضبوط.<br>
+            1) فعّل Storage من لوحة Firebase (Build > Storage > Get started).<br>
+            2) انشر القواعد: <code>firebase deploy --only storage</code><br>
+            3) اضبط CORS عبر gsutil (bucket: <code>mysite-860da.appspot.com</code>)<br>
+            4) حدّث الصفحة (Ctrl+F5) وأعد الرفع.<br>
+            عند النجاح سيختفي هذا التنبيه.
+          </div>
           <pre id="cloudDiag" style="direction:ltr;font-size:11px;background:#0f172a;color:#94a3b8;padding:6px;border-radius:6px;overflow:auto;max-height:140px;display:none"></pre>
         </div>
       </section>
@@ -203,6 +211,7 @@
   // تشخيص مبكر لنقص الإعداد
   window.addEventListener('DOMContentLoaded', ()=>{
     const hint = document.getElementById('uploadHint');
+  const storageHelp = document.getElementById('storageHelp');
     if(!FIREBASE_CFG){
       hint && (hint.textContent = 'لم يتم تفعيل الرفع السحابي: أكمل إعداد firebase-config.js');
     } else {
@@ -222,6 +231,7 @@
           logDiag('نجح فحص التخزين ✅');
         } catch(e){
           logDiag('فحص التخزين فشل ❌ code='+(e.code||'')+' msg='+(e.message||e));
+          if(storageHelp) storageHelp.style.display='block';
           if(String(e.code).includes('storage/')){
             hint && (hint.textContent = 'تعذر الوصول للتخزين: '+e.code);
           }
@@ -453,6 +463,7 @@
           const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Upload error: '+(err.message||err); }
           const took = ((Date.now()-startTime)/1000).toFixed(1);
           logDiag(`Upload fail ${f.name} after ${took}s code=${err && err.code}`);
+          if(/CORS|404|Failed/i.test(err.message||'')){ const sh=document.getElementById('storageHelp'); if(sh) sh.style.display='block'; }
           // محاولة حفظ Inline إذا كان سبب الفشل CORS أو منع تخزين
           if((err && (String(err.message).includes('CORS') || String(err.code).includes('storage/unknown') ))){
             fallbackInlineImage(f, placeholder);
