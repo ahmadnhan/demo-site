@@ -18,19 +18,14 @@ body{margin:0;font-family:'Cairo', system-ui, -apple-system, 'Segoe UI', Roboto,
 select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255,255,255,0.04);color:#fff}
 .section{margin-top:32px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
-/* Base card size override for small cards (grid) */
-.card{position:relative;overflow:hidden;padding:24px 22px 26px;border-radius:26px;background:#ffffff;border:1px solid #e5e9ef;box-shadow:0 4px 10px -2px rgba(15,23,42,.10),0 2px 4px -1px rgba(15,23,42,.05);transition:transform .35s cubic-bezier(.21,1,.23,1),box-shadow .35s,background .35s;display:flex;flex-direction:column;justify-content:flex-start;}
+.card{position:relative;overflow:hidden;padding:24px 22px 26px;border-radius:26px;background:#ffffff;border:1px solid #e5e9ef;box-shadow:0 4px 10px -2px rgba(15,23,42,.10),0 2px 4px -1px rgba(15,23,42,.05);transition:transform .35s cubic-bezier(.21,1,.23,1),box-shadow .35s,background .35s;}
 .card:hover{transform:translateY(-5px);box-shadow:0 12px 26px -6px rgba(15,23,42,.18),0 4px 8px -2px rgba(15,23,42,.08)}
-/* Provided Uiverse variant for decorative small cards only */
-.card:not(.wide){width:200px;min-height:250px;border-radius:14px;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;padding:18px 18px 22px;}
-.card.wide{width:auto;min-height:0;}
 /* Uiverse layered effect */
-/* Decorative layers */
-.card .bg{position:absolute;top:5px;left:5px;right:5px;bottom:5px;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);border-radius:10px;z-index:2;outline:2px solid #fff;transition:opacity .45s,transform .8s;}
-.card .blob{position:absolute;z-index:1;top:50%;left:50%;width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);opacity:0.9;filter:blur(12px);animation:blob-bounce 5s infinite ease;}
-.card:hover .bg{opacity:1}
-.card *:not(.bg):not(.blob){position:relative;z-index:3;}
-@keyframes blob-bounce{0%{transform:translate(-100%,-100%) translate3d(0,0,0);}25%{transform:translate(-100%,-100%) translate3d(100%,0,0);}50%{transform:translate(-100%,-100%) translate3d(100%,100%,0);}75%{transform:translate(-100%,-100%) translate3d(0,100%,0);}100%{transform:translate(-100%,-100%) translate3d(0,0,0);}}
+.card .bg{position:absolute;inset:0;background:linear-gradient(120deg,#b9e6ff,#f5f7fa);opacity:0.65;z-index:0;transition:opacity .4s,transform .6s ease;}
+.card .blob{position:absolute;top:-40%;left:-30%;width:160%;height:160%;background:radial-gradient(circle at 30% 30%,rgba(56,189,248,0.55),rgba(14,165,233,0.15),transparent 70%);mix-blend-mode:overlay;animation:blobMove 12s linear infinite;z-index:0;transform:translateZ(0);}
+.card:hover .bg{opacity:0.85;}
+.card *:not(.bg):not(.blob){position:relative;z-index:1;}
+@keyframes blobMove{0%{transform:translate3d(0,0,0) rotate(0deg);}50%{transform:translate3d(6%,4%,0) rotate(160deg);}100%{transform:translate3d(0,0,0) rotate(360deg);}}
 .card-head{position:relative}
 .card-head{font-weight:800;margin-bottom:8px;font-size:18px;color:var(--black)}
 .muted{color:var(--muted);font-size:14px}
@@ -41,8 +36,8 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 .site-footer{margin-top:38px;color:#fff;text-align:center;padding:24px 0;background:var(--black);flex-shrink:0}
 .dark body{background:#071024;color:#e6eef6}
 .dark .card{background:#0f1f2c;color:#e6eef6;border-color:rgba(255,255,255,0.08);box-shadow:0 4px 10px -2px rgba(0,0,0,.55),0 2px 4px -1px rgba(0,0,0,.4)}
-.dark .card .bg{background:rgba(8,23,36,.82);outline:2px solid rgba(255,255,255,0.06)}
-.dark .card .blob{background:linear-gradient(135deg,#0ea5e9,#155e75);opacity:.85;}
+.dark .card .bg{background:linear-gradient(120deg,#0f2f40,#102537);opacity:.55}
+.dark .card .blob{background:radial-gradient(circle at 35% 35%,rgba(14,165,233,0.4),rgba(2,132,199,0.05),transparent 70%);mix-blend-mode:overlay}
 .dark .btn{background:linear-gradient(180deg,#1b6b45,#0f5e3b);color:#e6f7ef;box-shadow:0 8px 20px rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.06)}
 .reveal{opacity:0;transform:translateY(18px) scale(.995);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.2,1)}
 .reveal.in-view{opacity:1;transform:translateY(0) scale(1)}
