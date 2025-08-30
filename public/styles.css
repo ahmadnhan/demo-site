@@ -17,12 +17,15 @@ body{margin:0;font-family:'Cairo', system-ui, -apple-system, 'Segoe UI', Roboto,
 .hdr-switch .icon{font-size:18px;line-height:1}
 select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255,255,255,0.04);color:#fff}
 .section{margin-top:32px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:22px;align-items:stretch}
 /* Base card size override for small cards (grid) */
 .card{position:relative;overflow:hidden;padding:24px 22px 26px;border-radius:26px;background:#ffffff;border:1px solid #e5e9ef;box-shadow:0 4px 10px -2px rgba(15,23,42,.10),0 2px 4px -1px rgba(15,23,42,.05);transition:transform .35s cubic-bezier(.21,1,.23,1),box-shadow .35s,background .35s;display:flex;flex-direction:column;justify-content:flex-start;}
 .card:hover{transform:translateY(-5px);box-shadow:0 12px 26px -6px rgba(15,23,42,.18),0 4px 8px -2px rgba(15,23,42,.08)}
-/* Provided Uiverse variant for decorative small cards; apply to grid cards only (exclude share) */
-.grid > .card:not(#shareCard){width:200px;min-height:250px;border-radius:14px;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;padding:18px 18px 22px;}
+/* Rectangular unified cards (remove previous fixed small card size) */
+/* All cards share same rectangular style */
+.card{border-radius:16px;min-height:170px;}
+/* Slightly adjust padding for consistency */
+.card{padding:22px 24px 26px;}
 /* Uiverse layered effect */
 /* Decorative layers */
 .card .bg{position:absolute;top:5px;left:5px;right:5px;bottom:5px;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);border-radius:10px;z-index:2;outline:2px solid #fff;transition:opacity .45s,transform .8s;}
