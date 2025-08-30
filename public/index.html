@@ -65,7 +65,7 @@
               <input type="file" id="fileInput" style="display:none" accept="image/*,video/*" multiple />
               رفع صور/فيديو
             </label>
-            <input id="urlInput" type="url" placeholder="الصق رابط (صورة/فيديو/ميديا) وأضف" style="margin-inline-start:8px;padding:6px;border-radius:6px;border:1px solid var(--muted,#ccc)" />
+            <!-- حقل لصق الرابط تمت إزالته -->
             <!-- زر أضف رابط تمت إزالته -->
             
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
@@ -263,7 +263,7 @@
     const fileInput = document.getElementById('fileInput');
     const uploadHint = document.getElementById('uploadHint');
     const sharePreview = document.getElementById('sharePreview');
-    const urlInput = document.getElementById('urlInput');
+  // const urlInput = document.getElementById('urlInput'); (محذوف)
   // const addUrlBtn = document.getElementById('addUrlBtn'); (محذوف)
     const dropZone = document.getElementById('dropZone');
   // تمت إزالة زر اختبار السحابة
