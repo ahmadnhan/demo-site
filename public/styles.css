@@ -21,8 +21,9 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 /* Base card size override for small cards (grid) */
 .card{position:relative;overflow:hidden;padding:24px 22px 26px;border-radius:26px;background:#ffffff;border:1px solid #e5e9ef;box-shadow:0 4px 10px -2px rgba(15,23,42,.10),0 2px 4px -1px rgba(15,23,42,.05);transition:transform .35s cubic-bezier(.21,1,.23,1),box-shadow .35s,background .35s;display:flex;flex-direction:column;justify-content:flex-start;}
 .card:hover{transform:translateY(-5px);box-shadow:0 12px 26px -6px rgba(15,23,42,.18),0 4px 8px -2px rgba(15,23,42,.08)}
-/* Provided Uiverse variant for decorative small cards; apply to grid cards only (exclude share) */
-.grid > .card:not(#shareCard){width:200px;min-height:250px;border-radius:14px;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;padding:18px 18px 22px;}
+/* Provided Uiverse variant for decorative small cards only */
+.card:not(.wide){width:200px;min-height:250px;border-radius:14px;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;padding:18px 18px 22px;}
+.card.wide{width:auto;min-height:0;}
 /* Uiverse layered effect */
 /* Decorative layers */
 .card .bg{position:absolute;top:5px;left:5px;right:5px;bottom:5px;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);border-radius:10px;z-index:2;outline:2px solid #fff;transition:opacity .45s,transform .8s;}
