@@ -69,7 +69,7 @@
             <!-- زر أضف رابط تمت إزالته -->
             
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
-            <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8">0 عناصر</div>
+            <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8"></div>
             <div id="uploadProgress" style="display:none;width:100%;background:#e2e8f0;border-radius:6px;height:8px;margin-top:8px;overflow:hidden">
               <div id="uploadBar" style="height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width .2s"></div>
             </div>
@@ -303,7 +303,7 @@
         snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
   // إزالة رسالة تمت مزامنة
   uploadHint.textContent = '';
-        if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`;
+  if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} عنصر` : '';
       }, err=>{
         console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
       });
@@ -368,7 +368,7 @@
       task.on('state_changed', snap=>{ if(onProgress && snap.totalBytes) onProgress(snap.bytesTransferred / snap.totalBytes); }, err=> reject(err), async ()=>{ try{ const url = await task.snapshot.ref.getDownloadURL(); resolve({ url, path, id }); } catch(e){ reject(e); } });
     });
   }
-  function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`; }
+  function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} عنصر` : ''; }
   function createUploadingPlaceholder(file){
     const id = 'temp-'+makeId();
     const wrapper = document.createElement('div');
