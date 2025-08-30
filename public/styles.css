@@ -20,15 +20,16 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
 /* 3D stage */
 .grid, .section{perspective:1400px;perspective-origin:50% 40%;}
-/* Solid (opaque) cards */
-.card{position:relative;overflow:hidden;padding:22px 22px 24px;border-radius:22px;background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 4px 12px -2px rgba(15,23,42,.15),0 8px 26px -6px rgba(15,23,42,.12);transition:transform .55s cubic-bezier(.22,1,.27,1),box-shadow .4s,background .35s,border-color .35s;transform-style:preserve-3d;}
-.card::after{display:none}
-.card:hover{transform:translateY(-4px) rotateX(6deg) rotateY(-5deg);box-shadow:0 18px 44px -14px rgba(15,23,42,.35),0 10px 26px -6px rgba(15,23,42,.25);} 
-.card:active{transform:translateY(-2px) rotateX(3deg) rotateY(-3deg) scale(.985);} 
-.card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,0.6),rgba(255,255,255,0));mix-blend-mode:overlay;opacity:.35;} 
-.card .bg,.card .blob{display:none !important;}
-@keyframes cardBgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes blobFloat{0%{transform:translate3d(-4%,2%,0) scale(1)}50%{transform:translate3d(6%,-8%,0) scale(1.08)}100%{transform:translate3d(-5%,4%,0) scale(1.02)}}
+/* Uiverse.io style card (dylanharriscameron) */
+.card{position:relative;width:200px;height:250px;border-radius:14px;z-index:1111;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;background:transparent;padding:0;margin:0 auto;}
+.card::before,.card::after{display:none}
+.card .bg{position:absolute;top:5px;left:5px;width:190px;height:240px;z-index:2;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:10px;overflow:hidden;outline:2px solid #fff;}
+.card .blob{position:absolute;z-index:1;top:50%;left:50%;width:150px;height:150px;border-radius:50%;background-color:#ff0000;opacity:1;filter:blur(12px);animation:blob-bounce 5s infinite ease;}
+@keyframes blob-bounce{0%{transform:translate(-100%,-100%) translate3d(0,0,0);}25%{transform:translate(-100%,-100%) translate3d(100%,0,0);}50%{transform:translate(-100%,-100%) translate3d(100%,100%,0);}75%{transform:translate(-100%,-100%) translate3d(0,100%,0);}100%{transform:translate(-100%,-100%) translate3d(0,0,0);}}
+/* Adjust inner content layering */
+.card > *:not(.bg):not(.blob){position:relative;z-index:3;padding:0 14px;text-align:center}
+/* Responsive fallback: when grid gives more space keep fixed size centered */
+.grid{justify-items:center}
 .card *{position:relative;z-index:1;}
 @media (prefers-reduced-motion:reduce){.card{transition:none}}
 /* Cursor parallax (basic) */
@@ -42,8 +43,8 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 .btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(8,167,74,0.16);opacity:.98}
 .site-footer{margin-top:38px;color:#fff;text-align:center;padding:24px 0;background:var(--black);flex-shrink:0}
 .dark body{background:#071024;color:#e6eef6}
-.dark .card{background:#102132;color:#e6eef6;border:1px solid #1e3a55;box-shadow:0 6px 26px -10px rgba(0,0,0,.7),0 2px 10px -2px rgba(0,0,0,.55);} 
-.dark .card:hover{background:#13283d}
+.dark .card{background:transparent;color:#e6eef6;box-shadow:20px 20px 60px #0b1621,-20px -20px 60px #162c42;}
+.dark .card .bg{background:rgba(16,33,50,.92);outline:2px solid #1e3a55}
 .dark .btn{background:linear-gradient(180deg,#1b6b45,#0f5e3b);color:#e6f7ef;box-shadow:0 8px 20px rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.06)}
 .reveal{opacity:0;transform:translateY(18px) scale(.995);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.2,1)}
 .reveal.in-view{opacity:1;transform:translateY(0) scale(1)}
