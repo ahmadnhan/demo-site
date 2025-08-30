@@ -301,7 +301,8 @@
         // إعادة بناء items
         items = [];
         snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
-        uploadHint.textContent = `تمت مزامنة ${items.length} عنصر`;
+  // إزالة رسالة تمت مزامنة
+  uploadHint.textContent = '';
         if(itemsCountEl) itemsCountEl.textContent = `${items.length} عنصر`;
       }, err=>{
         console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
