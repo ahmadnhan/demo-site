@@ -29,10 +29,11 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 /* Uiverse layered effect */
 /* Decorative layers */
 .card .bg{position:absolute;top:5px;left:5px;right:5px;bottom:5px;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);border-radius:10px;z-index:2;outline:2px solid #fff;transition:opacity .45s,transform .8s;}
-.card .blob{position:absolute;z-index:1;top:50%;left:50%;width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);opacity:0.9;filter:blur(12px);animation:blob-bounce 5s infinite ease;}
+.card .blob{position:absolute;z-index:1;top:0;left:0;width:55%;height:55%;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8 60%,#0ea5e9);opacity:0.9;filter:blur(18px);animation:blob-orbit 12s linear infinite;}
 .card:hover .bg{opacity:1}
 .card *:not(.bg):not(.blob){position:relative;z-index:3;}
-@keyframes blob-bounce{0%{transform:translate(-100%,-100%) translate3d(0,0,0);}25%{transform:translate(-100%,-100%) translate3d(100%,0,0);}50%{transform:translate(-100%,-100%) translate3d(100%,100%,0);}75%{transform:translate(-100%,-100%) translate3d(0,100%,0);}100%{transform:translate(-100%,-100%) translate3d(0,0,0);}}
+@keyframes blob-orbit{0%{transform:translate(0,0);}25%{transform:translate(82%,0);}50%{transform:translate(82%,82%);}75%{transform:translate(0,82%);}100%{transform:translate(0,0);}}
+@media (prefers-reduced-motion:reduce){.card .blob{animation-duration:0s;opacity:0.5}}
 .card-head{position:relative}
 .card-head{font-weight:800;margin-bottom:8px;font-size:18px;color:var(--black)}
 .muted{color:var(--muted);font-size:14px}
