@@ -20,20 +20,15 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
 /* 3D stage */
 .grid, .section{perspective:1400px;perspective-origin:50% 40%;}
-/* Glass + animated luxurious gradient cards */
-.card{position:relative;overflow:hidden;padding:22px 22px 24px;border-radius:22px;background:
- linear-gradient(140deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05)),
- linear-gradient(120deg,#4f46e5,#6366f1,#8b5cf6,#ec4899,#f59e0b,#10b981,#0ea5e9,#6366f1);
-background-size:100% 100%,520% 520%;
-animation:cardLux 32s linear infinite;
-border:1px solid rgba(255,255,255,0.32);backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);box-shadow:0 4px 12px -2px rgba(15,23,42,.25),0 8px 26px -6px rgba(15,23,42,.18),0 0 0 1px rgba(255,255,255,0.15) inset;transition:transform .55s cubic-bezier(.22,1,.27,1),box-shadow .55s,background .55s,border-color .55s;transform-style:preserve-3d;}
+/* Glass transparent cards */
+.card{position:relative;overflow:hidden;padding:22px 22px 24px;border-radius:22px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.32);backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);box-shadow:0 4px 12px -2px rgba(15,23,42,.25),0 8px 26px -6px rgba(15,23,42,.18),0 0 0 1px rgba(255,255,255,0.15) inset;transition:transform .55s cubic-bezier(.22,1,.27,1),box-shadow .55s,background .55s,border-color .55s;transform-style:preserve-3d;}
 .card::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,0.25),rgba(255,255,255,0));mix-blend-mode:overlay;pointer-events:none;transform:translateZ(40px);}
-.card:hover{transform:translateY(-4px) rotateX(7deg) rotateY(-6deg);box-shadow:0 18px 50px -14px rgba(15,23,42,.45),0 10px 26px -6px rgba(15,23,42,.28),0 0 0 1px rgba(255,255,255,0.25) inset;}
+.card:hover{transform:translateY(-4px) rotateX(7deg) rotateY(-6deg);box-shadow:0 18px 50px -14px rgba(15,23,42,.45),0 10px 26px -6px rgba(15,23,42,.28),0 0 0 1px rgba(255,255,255,0.25) inset;background:rgba(255,255,255,0.28);}
 .card:active{transform:translateY(-2px) rotateX(4deg) rotateY(-3deg) scale(.985);}
 .card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,rgba(255,255,255,0.55),rgba(255,255,255,0.05));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.85;}
 .card .bg,.card .blob{display:none;}
 .card *{position:relative;z-index:1;}
-@media (prefers-reduced-motion:reduce){.card{transition:none;animation:none;background-size:100% 100%,100% 100%}}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
 /* Cursor parallax (basic) */
 .card[data-tilt]{will-change:transform;}
 .card-head{position:relative}
@@ -45,17 +40,8 @@ border:1px solid rgba(255,255,255,0.32);backdrop-filter:blur(18px) saturate(170%
 .btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(8,167,74,0.16);opacity:.98}
 .site-footer{margin-top:38px;color:#fff;text-align:center;padding:24px 0;background:var(--black);flex-shrink:0}
 .dark body{background:#071024;color:#e6eef6}
-.dark .card{color:#e6eef6;border:1px solid rgba(255,255,255,0.15);background:
- linear-gradient(140deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)),
- linear-gradient(120deg,#1e3a8a,#3730a3,#6d28d9,#9d174d,#b45309,#065f46,#0c4a6e,#3730a3);
-background-size:100% 100%,540% 540%;animation:cardLuxDark 36s linear infinite;box-shadow:0 6px 28px -10px rgba(0,0,0,.65),0 2px 10px -2px rgba(0,0,0,.55);}
-.dark .card:hover{box-shadow:0 18px 50px -14px rgba(0,0,0,.8),0 10px 26px -6px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,0.25) inset;}
+.dark .card{background:rgba(15,31,44,0.42);color:#e6eef6;border:1px solid rgba(255,255,255,0.15);box-shadow:0 6px 28px -10px rgba(0,0,0,.65),0 2px 10px -2px rgba(0,0,0,.55);}
+.dark .card:hover{background:rgba(15,31,44,0.55)}
 .dark .btn{background:linear-gradient(180deg,#1b6b45,#0f5e3b);color:#e6f7ef;box-shadow:0 8px 20px rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.06)}
 .reveal{opacity:0;transform:translateY(18px) scale(.995);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.2,1)}
 .reveal.in-view{opacity:1;transform:translateY(0) scale(1)}
-/* Organic timing variations */
-.card:nth-child(2n){animation-duration:34s}
-.card:nth-child(3n){animation-duration:38s}
-.card:nth-child(4n){animation-duration:30s}
-@keyframes cardLux{0%{background-position:0 0,0% 50%}50%{background-position:0 0,100% 50%}100%{background-position:0 0,0% 50%}}
-@keyframes cardLuxDark{0%{background-position:0 0,0% 50%}50%{background-position:0 0,100% 48%}100%{background-position:0 0,0% 50%}}
