@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>احمد سايت — مشاريع وروابط</title>
+  <title>احمد سايت — مشاريع وروابط</title><!-- سيتم تحديث العنوان حسب اللغة -->
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,30 +52,27 @@
 
       <!-- New: file sharing card (ظهر قبل تواصل) -->
       <section id="share" class="section">
-        <h2 style="text-align:center">مشاركة ملفات عبر الموقع</h2>
+  <h2 style="text-align:center" data-i18n="share_h2">مشاركة ملفات عبر الموقع</h2>
   <div class="card" id="shareCard">
           <div class="bg"></div><div class="blob"></div>
           <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-            <span>مشاركة ملفات عبر الموقع</span>
+            <span data-i18n="share_card_title">مشاركة ملفات عبر الموقع</span>
             <span id="cloudModeStatus" style="font-size:12px;padding:4px 8px;border-radius:16px;background:#f1f5f9;color:#333;letter-spacing:.5px">...تحقق</span>
           </div>
-          <p class="muted">يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.</p>
+          <p class="muted" data-i18n="share_desc">يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.</p>
           <div class="actions">
-            <label class="btn btn-blue" style="cursor:pointer">
-              <input type="file" id="fileInput" style="display:none" accept="image/*,video/*" multiple />
-              رفع صور/فيديو
-            </label>
+            <label class="btn btn-blue" style="cursor:pointer"><input type="file" id="fileInput" style="display:none" accept="image/*,video/*" multiple /><span data-i18n="upload_label">رفع صور/فيديو</span></label>
             <!-- حقل لصق الرابط تمت إزالته -->
             <!-- زر أضف رابط تمت إزالته -->
             
-            <div id="uploadHint" class="muted" style="display:block;margin-top:8px">لم يتم اختيار ملفات أو روابط</div>
+            <div id="uploadHint" class="muted" style="display:block;margin-top:8px" data-i18n="upload_hint_empty">لم يتم اختيار ملفات أو روابط</div>
             <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8"></div>
             <div id="uploadProgress" style="display:none;width:100%;background:#e2e8f0;border-radius:6px;height:8px;margin-top:8px;overflow:hidden">
               <div id="uploadBar" style="height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width .2s"></div>
             </div>
           </div>
           <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
-          <div id="dropZone" style="margin-top:8px;padding:18px;border:2px dashed #94a3b8;border-radius:10px;text-align:center;font-size:14px;color:#64748b;cursor:copy;">
+          <div id="dropZone" style="margin-top:8px;padding:18px;border:2px dashed #94a3b8;border-radius:10px;text-align:center;font-size:14px;color:#64748b;cursor:copy;" data-i18n="dropzone_text">
             اسحب وأفلت الصور أو الفيديو هنا
           </div>
           <div id="storageHelp" style="display:none;margin-top:12px;padding:12px;border:1px solid #f59e0b;background:#fffbeb;border-radius:8px;font-size:13px;line-height:1.5;color:#92400e">
@@ -133,9 +130,38 @@
         project2_desc: 'Hijri/Gregorian date converter (downloadable).',
         app_converter_title: 'Date converter app',
         contact_h2: 'Contact',
-        contact_text: 'Place an email or contact form here.',
-        site_name: 'Demo Site',
-        rights: 'All rights reserved'
+        contact_text: 'You can contact us via email.',
+        site_name: 'Ahmed Site',
+        rights: 'All rights reserved',
+        doc_title: 'Ahmed Site — Projects & Links',
+        share_h2: 'Share Files via Site',
+        share_card_title: 'Share Files via Site',
+        share_desc: 'Pick a file to share by link (demo). UI only; no real upload in this version.',
+        upload_label: 'Upload Images / Video',
+        upload_hint_empty: 'No files or links selected',
+        dropzone_text: 'Drag & drop images or video here',
+        cloud_badge_cloud: 'Cloud',
+        cloud_badge_local: 'Local',
+        msg_cloud_disabled: 'Cloud upload disabled: configure firebase-config.js',
+        msg_missing_keys: 'Missing Firebase keys: ',
+        msg_fetch_fail: 'Cloud fetch failed',
+        msg_conn_fail: 'Cloud connection error',
+        msg_disabled: 'Upload disabled: enable Firebase first (cloud only)',
+        msg_fetching: 'Fetching items from cloud...',
+        msg_no_files: 'No files selected',
+        btn_save: 'Save',
+        btn_remove: 'Remove',
+        btn_cancel: 'Cancel',
+        status_downloaded: 'Downloaded',
+        status_removed: 'Removed',
+        status_uploading: 'Uploading',
+        status_failed: 'Upload failed',
+        status_completed: 'Completed',
+        status_canceled: 'Canceled',
+        status_inline_saved: 'Saved Inline',
+        status_timeout: 'Timed out',
+        items_singular: 'item',
+        items_plural: 'items'
       },
       ar: {
         tagline: 'محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة',
@@ -148,23 +174,57 @@
         contact_h2: 'تواصل',
   contact_text: 'يمكنك التواصل معنا عبر البريد الإلكتروني.',
   site_name: 'احمد سايت',
-        rights: 'جميع الحقوق محفوظة'
+        rights: 'جميع الحقوق محفوظة',
+        doc_title: 'احمد سايت — مشاريع وروابط',
+        share_h2: 'مشاركة ملفات عبر الموقع',
+        share_card_title: 'مشاركة ملفات عبر الموقع',
+        share_desc: 'يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.',
+        upload_label: 'رفع صور/فيديو',
+        upload_hint_empty: 'لم يتم اختيار ملفات أو روابط',
+        dropzone_text: 'اسحب وأفلت الصور أو الفيديو هنا',
+        cloud_badge_cloud: 'سحابي',
+        cloud_badge_local: 'محلي',
+        msg_cloud_disabled: 'لم يتم تفعيل الرفع السحابي: أكمل إعداد firebase-config.js',
+        msg_missing_keys: 'مفاتيح Firebase ناقصة: ',
+        msg_fetch_fail: 'تعذر الجلب السحابي',
+        msg_conn_fail: 'خطأ في الاتصال بالسحابة',
+        msg_disabled: 'الرفع معطل: فعل Firebase أولاً (سحابي فقط)',
+        msg_fetching: 'جاري جلب العناصر من السحابة...',
+        msg_no_files: 'لم يتم اختيار ملفات',
+        btn_save: 'حفظ',
+        btn_remove: 'إزالة',
+        btn_cancel: 'إلغاء',
+        status_downloaded: 'تم التنزيل',
+        status_removed: 'حذف',
+        status_uploading: 'جاري الرفع',
+        status_failed: 'فشل الرفع السحابي',
+        status_completed: 'اكتمل',
+        status_canceled: 'أُلغي',
+        status_inline_saved: 'تم رفع (Inline)',
+        status_timeout: 'انتهت المهلة',
+        items_singular: 'عنصر',
+        items_plural: 'عنصر'
       }
     };
+    let currentLang = 'ar';
+    function t(key, fallback){ return (i18n[currentLang] && i18n[currentLang][key]) || fallback || key; }
     const langSelect = document.getElementById('langSelect');
     function applyLang(lang){
+      currentLang = lang;
       document.documentElement.lang = lang;
       document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
       document.querySelectorAll('[data-i18n]').forEach(el=>{
         const key = el.getAttribute('data-i18n');
         if(i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
       });
+      if(i18n[lang] && i18n[lang].doc_title){ document.title = i18n[lang].doc_title; }
       try{ localStorage.setItem('demo_lang', lang) }catch(e){}
+      updateCounter();
     }
     langSelect.addEventListener('change', ()=>applyLang(langSelect.value));
     try{
-      const saved = localStorage.getItem('demo_lang');
-      if(saved){ langSelect.value = saved }
+  const saved = localStorage.getItem('demo_lang');
+  if(saved){ langSelect.value = saved; currentLang = saved; }
     }catch(e){}
     applyLang(langSelect.value);
 
@@ -204,7 +264,7 @@
   const FORCE_CLOUD_ONLY = true; // تفعيل وضع: رفع سحابي فقط بدون تخزين محلي
   const cloudModeStatusEl = document.getElementById('cloudModeStatus');
   const itemsCountEl = document.getElementById('itemsCount');
-  function setCloudBadge(txt, ok){ if(!cloudModeStatusEl) return; cloudModeStatusEl.textContent = txt; cloudModeStatusEl.style.background = ok? 'linear-gradient(90deg,#16a34a,#22c55e)' : '#f1f5f9'; cloudModeStatusEl.style.color = ok? '#fff':'#333'; }
+  function setCloudBadge(key, ok){ if(!cloudModeStatusEl) return; cloudModeStatusEl.textContent = t(key,key); cloudModeStatusEl.style.background = ok? 'linear-gradient(90deg,#16a34a,#22c55e)' : '#f1f5f9'; cloudModeStatusEl.style.color = ok? '#fff':'#333'; }
   const REQUIRED_CFG_KEYS = ['apiKey','authDomain','projectId','storageBucket'];
   // أداة تسجيل داخل صندوق التشخيص
   function logDiag(msg){
@@ -221,20 +281,20 @@
         firebaseDb = firebase.firestore();
         firebaseStorage = firebase.storage();
         CLOUD_ACTIVE = true;
-    setCloudBadge('سحابي', true);
+  setCloudBadge('cloud_badge_cloud', true);
       }
-  } catch(e){ console.warn('Firebase init failed', e); setCloudBadge('محلي', false); }
-  if(!CLOUD_ACTIVE) setCloudBadge('محلي', false);
+  } catch(e){ console.warn('Firebase init failed', e); setCloudBadge('cloud_badge_local', false); }
+  if(!CLOUD_ACTIVE) setCloudBadge('cloud_badge_local', false);
   // تشخيص مبكر لنقص الإعداد
   window.addEventListener('DOMContentLoaded', ()=>{
     const hint = document.getElementById('uploadHint');
   const storageHelp = document.getElementById('storageHelp');
     if(!FIREBASE_CFG){
-      hint && (hint.textContent = 'لم يتم تفعيل الرفع السحابي: أكمل إعداد firebase-config.js');
+  hint && (hint.textContent = t('msg_cloud_disabled'));
     } else {
       const missing = REQUIRED_CFG_KEYS.filter(k=> !FIREBASE_CFG[k]);
       if(missing.length){
-        hint && (hint.textContent = 'مفاتيح Firebase ناقصة: ' + missing.join(', '));
+  hint && (hint.textContent = t('msg_missing_keys') + missing.join(', '));
       }
     }
     // فحص صحة التخزين
@@ -278,13 +338,13 @@
   function saveState(){ /* محذوف */ }
   function loadState(){
     if(!CLOUD_ACTIVE){
-      uploadHint.textContent = 'الرفع معطل: فعل Firebase أولاً (سحابي فقط)';
+  uploadHint.textContent = t('msg_disabled');
       try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
       fileInput && (fileInput.disabled = true);
   // addUrlBtn كان يُعطل هنا (محذوف)
       return;
     }
-    uploadHint.textContent = 'جاري جلب العناصر من السحابة...';
+  uploadHint.textContent = t('msg_fetching');
     try {
       firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
         const snapshotIds = [];
@@ -303,11 +363,11 @@
         snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
   // إزالة رسالة تمت مزامنة
   uploadHint.textContent = '';
-  if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} عنصر` : '';
+  if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} ${(items.length===1)? t('items_singular') : t('items_plural')}` : '';
       }, err=>{
-        console.warn('snapshot err', err); uploadHint.textContent='تعذر الجلب السحابي';
+  console.warn('snapshot err', err); uploadHint.textContent=t('msg_fetch_fail');
       });
-    } catch(e){ uploadHint.textContent='خطأ في الاتصال بالسحابة'; }
+  } catch(e){ uploadHint.textContent=t('msg_conn_fail'); }
   }
 
   function renderItem(it, insertTop){
@@ -331,9 +391,9 @@
       else { const fileIcon=document.createElement('div'); fileIcon.textContent='📄'; fileIcon.style.fontSize='40px'; fileIcon.style.cursor='pointer'; if(url) fileIcon.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(fileIcon); }
 
       const actions=document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
-      const saveBtn=document.createElement('button'); saveBtn.textContent='حفظ'; saveBtn.className='btn';
-      saveBtn.onclick=async ()=>{ if(!url){ uploadHint.textContent='لا يوجد رابط'; return;} try{ const resp=await fetch(url); const blob=await resp.blob(); const obj=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=obj; a.download=it.name||'file'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj); uploadHint.textContent='تم التنزيل'; }catch(e){ window.open(url,'_blank','noopener'); } };
-  const removeBtn=document.createElement('button'); removeBtn.textContent='إزالة'; removeBtn.className='btn'; removeBtn.onclick=()=>{ wrapper.remove(); items = items.filter(x=> x.id !== it.id); saveState(); if(firebaseDb) firebaseDb.collection('shared_items').doc(it.id).delete().catch(()=>{}); if(firebaseStorage && it.storagePath){ firebaseStorage.ref().child(it.storagePath).delete().catch(()=>{}); } uploadHint.textContent='حذف'; };
+  const saveBtn=document.createElement('button'); saveBtn.textContent=t('btn_save','حفظ'); saveBtn.className='btn';
+  saveBtn.onclick=async ()=>{ if(!url){ return;} try{ const resp=await fetch(url); const blob=await resp.blob(); const obj=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=obj; a.download=it.name||'file'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj); uploadHint.textContent=t('status_downloaded'); }catch(e){ window.open(url,'_blank','noopener'); } };
+  const removeBtn=document.createElement('button'); removeBtn.textContent=t('btn_remove','إزالة'); removeBtn.className='btn'; removeBtn.onclick=()=>{ wrapper.remove(); items = items.filter(x=> x.id !== it.id); saveState(); if(firebaseDb) firebaseDb.collection('shared_items').doc(it.id).delete().catch(()=>{}); if(firebaseStorage && it.storagePath){ firebaseStorage.ref().child(it.storagePath).delete().catch(()=>{}); } uploadHint.textContent=t('status_removed'); updateCounter(); };
       actions.appendChild(saveBtn); actions.appendChild(removeBtn);
 
       wrapper.appendChild(info); wrapper.appendChild(actions);
@@ -368,7 +428,7 @@
       task.on('state_changed', snap=>{ if(onProgress && snap.totalBytes) onProgress(snap.bytesTransferred / snap.totalBytes); }, err=> reject(err), async ()=>{ try{ const url = await task.snapshot.ref.getDownloadURL(); resolve({ url, path, id }); } catch(e){ reject(e); } });
     });
   }
-  function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} عنصر` : ''; }
+  function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} ${(items.length===1)? t('items_singular') : t('items_plural')}` : ''; }
   function createUploadingPlaceholder(file){
     const id = 'temp-'+makeId();
     const wrapper = document.createElement('div');
@@ -386,19 +446,19 @@
       const icon=document.createElement('div'); icon.textContent = '⏳'; icon.style.fontSize='40px'; wrapper.appendChild(icon);
     }
   const info=document.createElement('div'); info.style.flex='1';
-  info.innerHTML = `<div style="font-weight:600;font-size:14px;direction:ltr">${file.name}</div><div class="up-status" style="font-size:12px;color:#64748b">جاري الرفع 0%</div>`;
+  info.innerHTML = `<div style="font-weight:600;font-size:14px;direction:ltr">${file.name}</div><div class="up-status" style="font-size:12px;color:#64748b">${t('status_uploading','جاري الرفع')} 0%</div>`;
     wrapper.appendChild(info);
     const prog=document.createElement('div'); prog.style.cssText='width:80px;height:6px;border-radius:4px;background:#334155;overflow:hidden';
     const bar=document.createElement('div'); bar.style.cssText='height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width .2s'; prog.appendChild(bar); wrapper.appendChild(prog);
-  const cancelBtn=document.createElement('button'); cancelBtn.textContent='إلغاء'; cancelBtn.className='btn'; cancelBtn.style.padding='4px 10px'; cancelBtn.style.fontSize='11px'; wrapper.appendChild(cancelBtn);
+  const cancelBtn=document.createElement('button'); cancelBtn.textContent=t('btn_cancel','إلغاء'); cancelBtn.className='btn'; cancelBtn.style.padding='4px 10px'; cancelBtn.style.fontSize='11px'; wrapper.appendChild(cancelBtn);
     wrapper._bar = bar;
   wrapper._statusEl = info.querySelector('.up-status');
   wrapper._cancel = cancelBtn;
     if(sharePreview.firstChild) sharePreview.insertBefore(wrapper, sharePreview.firstChild); else sharePreview.appendChild(wrapper);
-  return {id, el:wrapper, setProgress:(p)=>{ bar.style.width=(p*100).toFixed(1)+'%'; if(wrapper._statusEl) wrapper._statusEl.textContent = 'جاري الرفع '+(p*100).toFixed(0)+'%'; }, setStatus:(t)=>{ if(wrapper._statusEl) wrapper._statusEl.textContent=t; }};
+  return {id, el:wrapper, setProgress:(p)=>{ bar.style.width=(p*100).toFixed(1)+'%'; if(wrapper._statusEl) wrapper._statusEl.textContent = t('status_uploading','جاري الرفع')+' '+(p*100).toFixed(0)+'%'; }, setStatus:(tt)=>{ if(wrapper._statusEl) wrapper._statusEl.textContent=tt; }};
   }
   function addAndPersistItem(obj){
-    if(!CLOUD_ACTIVE){ uploadHint.textContent='غير ممكن بدون اتصال Firebase'; return; }
+  if(!CLOUD_ACTIVE){ uploadHint.textContent=t('msg_disabled'); return; }
     const it = Object.assign({id: makeId()}, obj);
     // عرض تفاؤلي
     items.unshift(it);
@@ -419,18 +479,18 @@
       const doc = { kind:'file-inline', name:file.name, type:file.type, dataUrl, inline:true };
       addAndPersistItem(doc);
       placeholder && placeholder.setStatus('حُفظت Inline');
-      uploadHint.textContent='تم رفع (Inline)';
+  uploadHint.textContent=t('status_inline_saved');
       logDiag('Inline save for '+file.name+' size='+file.size);
       return true;
     } catch(e){ logDiag('فشل inline: '+(e.message||e)); return false; }
   }
   function handleFiles(files){
-    if(!files || !files.length){ uploadHint.textContent='لم يتم اختيار ملفات'; return; }
-    if(!CLOUD_ACTIVE){ uploadHint.textContent='Firebase غير متصل (مطلوب)'; return; }
+  if(!files || !files.length){ uploadHint.textContent=t('msg_no_files'); return; }
+  if(!CLOUD_ACTIVE){ uploadHint.textContent=t('msg_disabled'); return; }
     const accepted = Array.from(files).filter(f=> /^(image|video)\//.test(f.type));
     const rejected = Array.from(files).filter(f=> !/^(image|video)\//.test(f.type));
     if(rejected.length){
-      uploadHint.textContent = 'تم تجاهل '+rejected.length+' ملف (يسمح فقط صور وفيديو)';
+  uploadHint.textContent = (currentLang==='ar'? 'تم تجاهل ':'Ignored ') + rejected.length + (currentLang==='ar'? ' ملف (يسمح فقط صور وفيديو)':' file(s) (only images/video allowed)');
     }
     accepted.forEach(async f=>{
       const placeholder = createUploadingPlaceholder(f);
@@ -440,7 +500,7 @@
       const startTime = Date.now();
       placeholder.el._cancel.addEventListener('click', ()=>{ if(taskRef){ try{ taskRef.cancel(); }catch(_){} } canceled=true; placeholder.setStatus('أُلغي'); placeholder.el.style.opacity='0.4'; });
       try {
-        uploadHint.textContent = `رفع ${f.name}...`;
+  uploadHint.textContent = (currentLang==='ar'? 'رفع ':'Uploading ') + f.name + '...';
         const safeName = f.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
         const id = makeId();
         const path = `shared/${id}_${safeName}`;
@@ -468,16 +528,16 @@
           console.warn('upload error', err);
           if(err && err.code === 'storage/canceled'){
             if(timedOut){
-              placeholder.setStatus('أُلغي بسبب المهلة (بطيء)');
+              placeholder.setStatus(t('status_timeout'));
             } else if(canceled){
-              placeholder.setStatus('أُلغي بواسطة المستخدم');
+              placeholder.setStatus(t('status_canceled'));
             } else {
-              placeholder.setStatus('أُلغي (انقطاع الشبكة)');
+              placeholder.setStatus(t('status_canceled'));
             }
           } else {
-            placeholder.setStatus('فشل: '+(err.code||'خطأ'));
+            placeholder.setStatus(t('status_failed')+ (err.code?(': '+err.code):''));
           }
-          uploadHint.textContent='فشل الرفع السحابي';
+          uploadHint.textContent=t('status_failed');
           const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Upload error: '+(err.message||err); }
           const took = ((Date.now()-startTime)/1000).toFixed(1);
           logDiag(`Upload fail ${f.name} after ${took}s code=${err && err.code}`);
@@ -493,14 +553,14 @@
             const url = await task.snapshot.ref.getDownloadURL();
             const meta = {kind:'file', name:f.name, url, type:f.type||'application/octet-stream', storagePath:path, id};
             addAndPersistItem(meta);
-            placeholder.setStatus('اكتمل');
+            placeholder.setStatus(t('status_completed'));
             setTimeout(()=>{ if(placeholder.el && placeholder.el.parentNode){ if(placeholder.el.dataset.objUrl){ try{ URL.revokeObjectURL(placeholder.el.dataset.objUrl); }catch(_e){} } placeholder.el.remove(); } }, 400);
-            uploadHint.textContent = `تم رفع ${f.name}`;
+            uploadHint.textContent = (currentLang==='ar'? 'تم رفع ':'Uploaded ') + f.name;
             const took = ((Date.now()-startTime)/1000).toFixed(1);
             logDiag(`Upload ok ${f.name} in ${took}s size=${f.size}`);
           } catch(e){ console.warn('post-url error', e); placeholder.setStatus('خطأ بالرابط'); }
         });
-      } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent='فشل الرفع السحابي'; const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Cloud upload failed: '+(e.message||e); } }
+  } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent=t('status_failed'); const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Cloud upload failed: '+(e.message||e); } }
     });
   }
 
