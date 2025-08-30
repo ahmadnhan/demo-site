@@ -18,6 +18,8 @@ body{margin:0;font-family:'Cairo', system-ui, -apple-system, 'Segoe UI', Roboto,
 select#langSelect{padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.09);color:#eff6fb}
 .section{margin-top:32px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+/* Projects heading shadow */
+h2[data-i18n="projects_h2"]{font-weight:800;letter-spacing:.5px;text-shadow:0 2px 4px rgba(0,0,0,0.18),0 6px 18px rgba(0,0,0,0.15);}
 /* 3D stage */
 .grid, .section{perspective:1400px;perspective-origin:50% 40%;}
 /* Uiverse.io style card (dylanharriscameron) */
