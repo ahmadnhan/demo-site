@@ -42,7 +42,7 @@
         <article class="card">
           <div class="bg"></div><div class="blob"></div>
           <div class="card-head" data-i18n="project2_title">تطبيقاتي</div>
-          <p class="muted">روابط تحميل تطبيقات</p>
+          <p class="muted" data-i18n="project2_links_desc">روابط تحميل تطبيقات</p>
           <div class="actions">
             <a class="btn btn-blue" href="https://www.mediafire.com/file/fekgcz3s4tl8326/app3719549-ghn059.apk/file" target="_blank" rel="noopener" data-i18n="app_converter_title" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">تطبيق تحويل تاريخ</a>
           </div>
@@ -127,7 +127,8 @@
         project1_title: 'My site links',
         project1_desc: 'My demo sites',
         project2_title: 'My apps',
-        project2_desc: 'Hijri/Gregorian date converter (downloadable).',
+  project2_desc: 'Hijri/Gregorian date converter (downloadable).',
+  project2_links_desc: 'App download links',
         app_converter_title: 'Date converter app',
         contact_h2: 'Contact',
         contact_text: 'You can contact us via email.',
@@ -169,7 +170,8 @@
         project1_title: 'روابط موقعي',
         project1_desc: 'مواقع التجريبيه خاصه بي',
         project2_title: 'تطبيقاتي',
-        project2_desc: 'محول تواريخ هجري/ميلادي (قابل للتحميل).',
+  project2_desc: 'محول تواريخ هجري/ميلادي (قابل للتحميل).',
+  project2_links_desc: 'روابط تحميل تطبيقات',
         app_converter_title: 'تطبيق تحويل تاريخ',
         contact_h2: 'تواصل',
   contact_text: 'يمكنك التواصل معنا عبر البريد الإلكتروني.',
@@ -220,6 +222,10 @@
       if(i18n[lang] && i18n[lang].doc_title){ document.title = i18n[lang].doc_title; }
       try{ localStorage.setItem('demo_lang', lang) }catch(e){}
       updateCounter();
+      // إعادة تعريب شارة السحابة حسب الحالة
+      if(typeof CLOUD_ACTIVE !== 'undefined'){
+        if(CLOUD_ACTIVE) setCloudBadge('cloud_badge_cloud', true); else setCloudBadge('cloud_badge_local', false);
+      }
     }
     langSelect.addEventListener('change', ()=>applyLang(langSelect.value));
     try{
