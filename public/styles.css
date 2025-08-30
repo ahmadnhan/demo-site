@@ -20,21 +20,16 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
 /* 3D stage */
 .grid, .section{perspective:1400px;perspective-origin:50% 40%;}
-/* Rectangular responsive cards */
-.card{position:relative;width:100%;min-height:210px;border-radius:18px;z-index:10;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;padding:22px 22px 26px;background:#ffffff;box-shadow:0 6px 18px -4px rgba(0,0,0,0.12),0 2px 8px -2px rgba(0,0,0,0.08);transition:transform .45s cubic-bezier(.22,1,.27,1),box-shadow .45s;background-clip:padding-box;border:1px solid #e5e7eb;}
-.card:hover{transform:translateY(-6px);box-shadow:0 18px 42px -12px rgba(0,0,0,.18),0 8px 22px -6px rgba(0,0,0,.12);} 
-.card:active{transform:translateY(-2px) scale(.99);} 
+/* Uiverse.io style card (dylanharriscameron) */
+.card{position:relative;width:200px;height:250px;border-radius:14px;z-index:1111;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:20px 20px 60px #bebebe,-20px -20px 60px #ffffff;background:transparent;padding:0;margin:0 auto;}
 .card::before,.card::after{display:none}
-/* Background layer fills full card */
-.card .bg{position:absolute;inset:0;z-index:1;background:linear-gradient(135deg,#ffffff,#f5f7fa);border-radius:inherit;outline:1px solid #fff;opacity:.9;}
-/* Blurred accent blob (subtle) */
-.card .blob{position:absolute;z-index:0;top:55%;left:60%;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,0,70,0.35),rgba(255,0,70,0) 70%);filter:blur(50px) saturate(160%);animation:blob-bounce 14s ease-in-out infinite;opacity:.55;pointer-events:none;}
-@keyframes blob-bounce{0%{transform:translate(-40%, -40%) scale(1)}50%{transform:translate(-30%, -50%) scale(1.15)}100%{transform:translate(-40%, -40%) scale(1)}}
+.card .bg{position:absolute;top:5px;left:5px;width:190px;height:240px;z-index:2;background:rgba(255,255,255,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:10px;overflow:hidden;outline:2px solid #fff;}
+.card .blob{position:absolute;z-index:1;top:50%;left:50%;width:150px;height:150px;border-radius:50%;background-color:#ff0000;opacity:1;filter:blur(12px);animation:blob-bounce 5s infinite ease;}
 @keyframes blob-bounce{0%{transform:translate(-100%,-100%) translate3d(0,0,0);}25%{transform:translate(-100%,-100%) translate3d(100%,0,0);}50%{transform:translate(-100%,-100%) translate3d(100%,100%,0);}75%{transform:translate(-100%,-100%) translate3d(0,100%,0);}100%{transform:translate(-100%,-100%) translate3d(0,0,0);}}
-/* Content layering */
-.card > *:not(.bg):not(.blob){position:relative;z-index:2;padding:0;margin:0;text-align:initial;max-width:100%}
-/* Grid stretch cards */
-.grid{justify-items:stretch}
+/* Adjust inner content layering */
+.card > *:not(.bg):not(.blob){position:relative;z-index:3;padding:0 14px;text-align:center}
+/* Responsive fallback: when grid gives more space keep fixed size centered */
+.grid{justify-items:center}
 .card *{position:relative;z-index:1;}
 @media (prefers-reduced-motion:reduce){.card{transition:none}}
 /* Cursor parallax (basic) */
@@ -48,10 +43,8 @@ select#langSelect{padding:6px 8px;border-radius:8px;border:0;background:rgba(255
 .btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(8,167,74,0.16);opacity:.98}
 .site-footer{margin-top:38px;color:#fff;text-align:center;padding:24px 0;background:var(--black);flex-shrink:0}
 .dark body{background:#071024;color:#e6eef6}
-.dark .card{background:#0f1d2a;color:#e6eef6;border:1px solid #1e2f42;box-shadow:0 6px 22px -6px rgba(0,0,0,.6),0 2px 8px -2px rgba(0,0,0,.5);} 
-.dark .card:hover{box-shadow:0 20px 44px -14px rgba(0,0,0,.75),0 10px 26px -8px rgba(0,0,0,.55);} 
-.dark .card .bg{background:linear-gradient(135deg,#102132,#0d1b27);outline:1px solid #1e3a55;opacity:.95}
-.dark .card .blob{background:radial-gradient(circle at 35% 35%,rgba(0,140,255,0.35),rgba(0,140,255,0) 70%);}
+.dark .card{background:transparent;color:#e6eef6;box-shadow:20px 20px 60px #0b1621,-20px -20px 60px #162c42;}
+.dark .card .bg{background:rgba(16,33,50,.92);outline:2px solid #1e3a55}
 .dark .btn{background:linear-gradient(180deg,#1b6b45,#0f5e3b);color:#e6f7ef;box-shadow:0 8px 20px rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.06)}
 .reveal{opacity:0;transform:translateY(18px) scale(.995);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.2,1)}
 .reveal.in-view{opacity:1;transform:translateY(0) scale(1)}
