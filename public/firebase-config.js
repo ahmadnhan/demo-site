@@ -1,13 +1,10 @@
-// إعدادات Firebase: ضع القيم الفعلية هنا (من لوحة Firebase > Project Settings > Web App)
-// بعد التعديل أعد النشر.
-// ملاحظات الأمان: لا تضع أسرار خاصة هنا؛ مفاتيح الويب عامة بطبيعتها.
-// إعدادات Firebase: ضع القيم الخاصة بمشروعك هنا ليعمل الرفع السحابي
-// (هذه مفاتيح عامة للويب وليست سرية؛ احصل عليها من Project Settings > General > Your apps (Web))
+// Firebase configuration (inserted)
 window.FIREBASE_CONFIG = {
-	apiKey: "AIzaSyAGscfjauqkbJGtBozqxuvnaRA-VWMFrpU",
-	authDomain: "mysite-860da.firebaseapp.com",
-	projectId: "mysite-860da",
-	storageBucket: "mysite-860da.appspot.com", // تصحيح النطاق إلى appspot.com
-	messagingSenderId: "389399285990",
-	appId: "1:389399285990:web:a6aab5f6e28c2ccffbab27"
+	apiKey: "AIzaSyBPWKlxt0vwwAojsZvb4lJMdf9K5q5ox6o",
+	authDomain: "ahmadsite-1e2b9.firebaseapp.com",
+	projectId: "ahmadsite-1e2b9",
+	storageBucket: "ahmadsite-1e2b9.firebasestorage.app",
+	messagingSenderId: "302161580237",
+	appId: "1:302161580237:web:023c8210afcf2ce1d41984"
 };
+// NOTE: Using Firebase v8 scripts already loaded in index.html. Do not convert to modular imports unless refactoring whole file.
