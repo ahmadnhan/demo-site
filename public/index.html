@@ -66,7 +66,17 @@
       <input type="hidden" role="uploadcare-uploader" data-multiple="true" data-clearable="true" data-tabs="file url camera facebook gdrive dropbox instagram" />
   <!-- عنصر رفع إضافي بالمفتاح داخل الخاصية حسب طلبك -->
   <input type="hidden" role="uploadcare-uploader" data-public-key="e5eaa0ae17c2522f8800b9" data-multiple="true" data-clearable="true" />
-      <div id="uploadedFiles" style="margin-top:16px;font-size:14px;line-height:1.4;direction:ltr"></div>
+      <style>
+        /* معاينات Uploadcare (مضمّنة محلياً) */
+        #uploadedFiles{margin-top:16px;direction:ltr}
+        .uc-previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+        .uc-item{background:#f5f7fa;border:1px solid #d9e2ec;border-radius:8px;padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+        .uc-thumb{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;background:#e2e8f0;font-size:11px;display:flex;align-items:center;justify-content:center;color:#555;text-align:center;padding:4px}
+        .uc-name{margin-top:4px;font-size:11px;word-break:break-all;text-align:center;line-height:1.2}
+        .uc-meta{margin-top:2px;font-size:10px;color:#666}
+        .uc-item video{width:100%;height:100%;object-fit:cover;border-radius:4px}
+      </style>
+      <div id="uploadedFiles"></div>
     </div>
 
     <script>
@@ -80,10 +90,29 @@
           const widgetFiles = new Map(); // widget -> files[]
           function renderFiles(allFiles){
             if(!allFiles.length){
-              listEl.innerHTML = '<em style="color:#666">لم يتم رفع ملفات بعد</em>';
+              listEl.innerHTML = '<em style="color:#666;font-size:13px">لم يتم رفع ملفات بعد</em>';
               return;
             }
-            listEl.innerHTML = allFiles.map(f=>`<div style=\"margin:4px 0;word-break:break-all\">📄 <a href=\"${f.cdnUrl}\" target=\"_blank\" rel=\"noopener\">${f.name || f.uuid}</a> (${(f.size/1024).toFixed(1)} KB)</div>`).join('');
+            const items = allFiles.map(f=>{
+              const name = f.name || f.originalFilename || f.uuid;
+              const sizeKB = f.size ? (f.size/1024).toFixed(1) : '';
+              const lower = (name||'').toLowerCase();
+              const isImg = f.isImage || /\.(png|jpe?g|gif|webp|bmp|svg|avif)$/i.test(lower);
+              const isVideo = /\.(mp4|webm|ogg|mov|m4v)$/i.test(lower) || (f.mimeType && f.mimeType.startsWith('video/'));
+              const baseUrl = f.cdnUrl || f.cdnUrlModifiers ? (f.cdnUrl + (f.cdnUrlModifiers||'')) : f.originalUrl || '';
+              let thumbHTML;
+              if(isImg && baseUrl){
+                // استخدام تحويل مصغر
+                const previewUrl = baseUrl + (baseUrl.includes('-/preview/') ? '' : '-/preview/200x200/-/quality/smart/');
+                thumbHTML = `<img class=\"uc-thumb\" src=\"${previewUrl}\" alt=\"${name}\" loading=\"lazy\"/>`;
+              } else if(isVideo && baseUrl){
+                thumbHTML = `<video class=\"uc-thumb\" src=\"${baseUrl}\" preload=\"metadata\" muted playsinline></video>`;
+              } else {
+                thumbHTML = `<div class=\"uc-thumb\">ملف</div>`;
+              }
+              return `<a class=\"uc-item\" href=\"${baseUrl}\" target=\"_blank\" rel=\"noopener\">${thumbHTML}<div class=\"uc-name\">${name}</div><div class=\"uc-meta\">${sizeKB} KB</div></a>`;
+            }).join('');
+            listEl.innerHTML = `<div class=\"uc-previews\">${items}</div>`;
           }
           renderFiles([]);
           function recompute(){
