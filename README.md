@@ -84,3 +84,20 @@ allow write: if request.auth != null;
 ---
 ملاحظات: المفاتيح العمومية ليست سرية، لكن لا تضع أي أسرار أخرى داخل المستودع. احرص على تشديد القواعد قبل الإنتاج.
 
+## تهيئة Firebase الحالية
+تمت إضافة ملف `public/firebase-config.js` بالمحتوى التالي (مشروع ahmadsite-1e2b9):
+```js
+window.FIREBASE_CONFIG = {
+	apiKey: "AIzaSyBPWKlxt0vwwAojsZvb4lJMdf9K5q5ox6o",
+	authDomain: "ahmadsite-1e2b9.firebaseapp.com",
+	projectId: "ahmadsite-1e2b9",
+	storageBucket: "ahmadsite-1e2b9.firebasestorage.app",
+	messagingSenderId: "302161580237",
+	appId: "1:302161580237:web:023c8210afcf2ce1d41984"
+};
+```
+لتغيير المشروع لاحقاً عدّل القيم ثم أعد:
+```
+firebase deploy --only hosting
+```
+
