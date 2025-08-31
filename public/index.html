@@ -104,7 +104,7 @@
     function setDark(on){ if(on) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); try{ localStorage.setItem('demo_dark', on ? '1' : '0') }catch(e){} darkToggle.checked = !!on; }
     darkToggle.addEventListener('change', (e)=> setDark(e.target.checked));
     try{ if(localStorage.getItem('demo_dark') === '1') setDark(true) }catch(e){}
-  const i18n = { en: { tagline: 'Portfolio & links — quick view of my projects', projects_h2: 'Projects', project1_title: 'My site links', project1_desc: 'My demo sites', converter_site_link: 'Date Converter Site', project2_title: 'My apps', project2_links_desc: 'App download links', app_converter_title: 'Date converter app', contact_h2: 'Contact', contact_text: 'You can contact us via email.', site_name: 'Ahmed Site', rights: 'All rights reserved', doc_title: 'Ahmed Site — Projects & Links', share_h2: 'Share Files via Site', share_card_title: 'Share Files via Site', share_desc: 'Upload and get a shareable link instantly.', upload_label: 'Upload Images / Video', upload_hint_empty: 'No files or links selected', dropzone_text: 'Drag & drop images or video here', btn_save: 'Save', btn_remove: 'Remove', btn_cancel: 'Cancel', status_downloaded: 'Downloaded', status_removed: 'Removed', status_uploading: 'Uploading', status_failed: 'Upload failed', status_completed: 'Completed', status_canceled: 'Canceled', status_inline_saved: 'Saved Inline', status_timeout: 'Timed out', items_singular: 'item', items_plural: 'items' }, ar: { tagline: 'محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة', projects_h2: 'المشاريع', project1_title: 'روابط موقعي', project1_desc: 'مواقع التجريبيه خاصه بي', converter_site_link: 'موقع تحويل التاريخ', project2_title: 'تطبيقاتي', project2_links_desc: 'روابط تحميل تطبيقات', app_converter_title: 'تطبيق تحويل تاريخ', contact_h2: 'تواصل', contact_text: 'يمكنك التواصل معنا عبر البريد الإلكتروني.', site_name: 'احمد سايت', rights: 'جميع الحقوق محفوظة', doc_title: 'احمد سايت — مشاريع وروابط', share_h2: 'مشاركة ملفات عبر الموقع', share_card_title: 'مشاركة ملفات عبر الموقع', share_desc: 'ارفع ملف واحصل على رابط مشاركة مباشر.', upload_label: 'رفع صور/فيديو', upload_hint_empty: 'لم يتم اختيار ملفات أو روابط', dropzone_text: 'اسحب وأفلت الصور أو الفيديو هنا', btn_save: 'حفظ', btn_remove: 'إزالة', btn_cancel: 'إلغاء', status_downloaded: 'تم التنزيل', status_removed: 'حذف', status_uploading: 'جاري الرفع', status_failed: 'فشل الرفع', status_completed: 'اكتمل', status_canceled: 'أُلغي', status_inline_saved: 'تم رفع (Inline)', status_timeout: 'انتهت المهلة', items_singular: 'عنصر', items_plural: 'عنصر' } };
+  const i18n = { en: { tagline: 'Portfolio & links — quick view of my projects', projects_h2: 'Projects', project1_title: 'My site links', project1_desc: 'My demo sites', converter_site_link: 'Date Converter Site', project2_title: 'My apps', project2_links_desc: 'App download links', app_converter_title: 'Date converter app', contact_h2: 'Contact', contact_text: 'You can contact us via email.', site_name: 'Ahmed Site', rights: 'All rights reserved', doc_title: 'Ahmed Site — Projects & Links', share_h2: 'Share Files via Site', share_card_title: 'Share Files via Site', share_desc: 'Upload and get a shareable link instantly.', upload_label: 'Upload Images / Video', upload_hint_empty: 'No files or links selected', dropzone_text: 'Drag & drop images or video here', btn_save: 'Save', btn_remove: 'Remove', btn_cancel: 'Cancel', status_downloaded: 'Downloaded', status_removed: 'Removed', status_uploading: 'Uploading', status_failed: 'Upload failed', status_completed: 'Completed', status_canceled: 'Canceled', status_inline_saved: 'Saved Inline', status_timeout: 'Timed out', items_singular: 'item', items_plural: 'items', copy_link: 'Copy link', copied: 'Copied!' }, ar: { tagline: 'محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة', projects_h2: 'المشاريع', project1_title: 'روابط موقعي', project1_desc: 'مواقع التجريبيه خاصه بي', converter_site_link: 'موقع تحويل التاريخ', project2_title: 'تطبيقاتي', project2_links_desc: 'روابط تحميل تطبيقات', app_converter_title: 'تطبيق تحويل تاريخ', contact_h2: 'تواصل', contact_text: 'يمكنك التواصل معنا عبر البريد الإلكتروني.', site_name: 'احمد سايت', rights: 'جميع الحقوق محفوظة', doc_title: 'احمد سايت — مشاريع وروابط', share_h2: 'مشاركة ملفات عبر الموقع', share_card_title: 'مشاركة ملفات عبر الموقع', share_desc: 'ارفع ملف واحصل على رابط مشاركة مباشر.', upload_label: 'رفع صور/فيديو', upload_hint_empty: 'لم يتم اختيار ملفات أو روابط', dropzone_text: 'اسحب وأفلت الصور أو الفيديو هنا', btn_save: 'حفظ', btn_remove: 'إزالة', btn_cancel: 'إلغاء', status_downloaded: 'تم التنزيل', status_removed: 'حذف', status_uploading: 'جاري الرفع', status_failed: 'فشل الرفع', status_completed: 'اكتمل', status_canceled: 'أُلغي', status_inline_saved: 'تم رفع (Inline)', status_timeout: 'انتهت المهلة', items_singular: 'عنصر', items_plural: 'عنصر', copy_link: 'نسخ الرابط', copied: 'تم النسخ!' } };
     let currentLang = 'ar';
     function t(key, fallback){ return (i18n[currentLang] && i18n[currentLang][key]) || fallback || key; }
     const langSelect = document.getElementById('langSelect');
@@ -126,10 +126,11 @@
   </script>
   <script>
     // Simple Uploadcare widget injection
+    let uploadcareReady = false; const earlyClicks = [];
     (function(){
       const script = document.createElement('script');
       script.src = 'https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js';
-      script.onload = initUploadcareArea;
+      script.onload = ()=>{ uploadcareReady = true; initUploadcareArea(); while(earlyClicks.length){ earlyClicks.pop()(); } };
       document.head.appendChild(script);
     })();
 
@@ -140,7 +141,7 @@
     let currentLangUC = currentLang;
     let ucWidgets = [];
     function updateCounter(){ if(itemsCountEl){ const c = sharePreview.querySelectorAll('.preview-item').length; itemsCountEl.textContent = c? (c+' '+(c===1? t('items_singular'): t('items_plural'))) : ''; } }
-    function createPreview(fileInfo){
+  function createPreview(fileInfo){
       const wrap = document.createElement('div');
       wrap.className='preview-item';
       wrap.style.cssText='padding:8px;border:1px solid rgba(0,0,0,0.06);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
@@ -156,11 +157,13 @@
           const icon=document.createElement('div'); icon.textContent='📄'; icon.style.fontSize='40px'; icon.style.cursor='pointer'; icon.onclick=()=> window.open(url,'_blank','noopener'); wrap.appendChild(icon);
         }
       }
-      const actions = document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
+  const actions = document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
       const saveBtn=document.createElement('button'); saveBtn.textContent=t('btn_save','حفظ'); saveBtn.className='btn';
       saveBtn.onclick=async ()=>{ if(!url) return; try{ const resp=await fetch(url); const blob=await resp.blob(); const obj=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=obj; a.download=title.textContent||'file'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj); uploadHint.textContent=t('status_downloaded'); }catch(e){ window.open(url,'_blank','noopener'); } };
       const removeBtn=document.createElement('button'); removeBtn.textContent=t('btn_remove','إزالة'); removeBtn.className='btn'; removeBtn.onclick=()=>{ wrap.remove(); updateCounter(); };
+  const copyBtn=document.createElement('button'); copyBtn.textContent=t('copy_link','Copy link'); copyBtn.className='btn'; copyBtn.onclick=async ()=>{ if(!url) return; try{ await navigator.clipboard.writeText(url); const old=copyBtn.textContent; copyBtn.textContent=t('copied','Copied!'); setTimeout(()=> copyBtn.textContent = old, 1800); }catch(_){ prompt('Copy link:', url); } };
       actions.appendChild(saveBtn); actions.appendChild(removeBtn);
+  actions.appendChild(copyBtn);
       wrap.appendChild(info); wrap.appendChild(actions);
       if(sharePreview.firstChild) sharePreview.insertBefore(wrap, sharePreview.firstChild); else sharePreview.appendChild(wrap);
       updateCounter();
@@ -170,22 +173,21 @@
       const btn = document.getElementById('openReactUploaderBtn');
       if(btn){
         // turn existing button into multiple widget launcher
-        btn.onclick = ()=>{
+        const openDialog = ()=>{
           const input = document.createElement('input');
           input.type='hidden';
           input.setAttribute('role','uploadcare-uploader');
-          input.setAttribute('data-public-key','e5eaa0ae17c2522f8800');
+          input.setAttribute('data-public-key','e5eaa0ae17c2522f8800b9');
           input.setAttribute('data-multiple','true');
           input.setAttribute('data-system-dialog','true');
           document.body.appendChild(input);
-          const widget = uploadcare.Widget(input);
-          ucWidgets.push(widget);
-          widget.openDialog(null,{ multiple: true }).done(group=>{
-            group.files().forEach(fPromise=>{
-              fPromise.done(fileInfo=>{ createPreview(fileInfo); });
+            const widget = uploadcare.Widget(input);
+            ucWidgets.push(widget);
+            widget.openDialog(null,{ multiple: true }).done(group=>{
+              group.files().forEach(fPromise=>{ fPromise.done(fileInfo=> createPreview(fileInfo)); });
             });
-          });
         };
+        btn.onclick = ()=>{ if(!uploadcareReady){ earlyClicks.push(openDialog); return; } openDialog(); };
       }
       if(dropZone){
         dropZone.textContent = t('dropzone_text');
@@ -193,11 +195,14 @@
         ['dragleave','drop'].forEach(ev=> dropZone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); dropZone.style.background=''; }));
         dropZone.addEventListener('drop', e=>{
           const dt = e.dataTransfer; if(!dt || !dt.files || !dt.files.length) return;
-          // Create a local preview (no upload) as Uploadcare doesn't auto ingest drag-drop here
-          Array.from(dt.files).forEach(file=>{
-            const localInfo = { name:file.name, isImage: file.type.startsWith('image/'), cdnUrl: URL.createObjectURL(file) };
-            createPreview(localInfo);
-          });
+          const files = Array.from(dt.files);
+          const process = ()=>{
+            files.forEach(file=>{
+              // uploadcare.fileFrom will upload the File object
+              uploadcare.fileFrom('object', file).done(fileInfo=> createPreview(fileInfo));
+            });
+          };
+          if(!uploadcareReady){ earlyClicks.push(process); } else { process(); }
         });
       }
     }
