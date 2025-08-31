@@ -1,5 +1,15 @@
 {
   "dependencies": {
+    "@uploadcare/react-uploader": "^1.10.2",
     "firebase": "^12.2.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "scripts": {
+    "build:uploader": "esbuild src/react-uploader.jsx --bundle --outfile=public/uploader/bundle.js --format=esm --minify",
+    "build": "npm run build:uploader"
   }
 }
