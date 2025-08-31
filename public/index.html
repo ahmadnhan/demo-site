@@ -1,593 +1,153 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>احمد سايت — مشاريع وروابط</title><!-- سيتم تحديث العنوان حسب اللغة -->
-  <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <header class="hero">
-    <div class="container" style="position:relative">
-      <div class="brand">
-  <h1>احمد سايت</h1>
-        <p class="tag" data-i18n="tagline">محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة</p>
-      </div>
-      <!-- header controls: dark mode + language -->
-      <div class="header-controls">
-        <label class="hdr-switch" aria-label="الوضع الليلي"><input type="checkbox" id="darkToggle" /><span class="icon" aria-hidden="true">🌙</span></label>
-        <select id="langSelect" aria-label="language">
-          <option value="ar">العربية</option>
-          <option value="en">English</option>
-        </select>
-      </div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Firebase Hosting</title>
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/12.2.1/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/12.2.1/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/12.2.1/firebase-performance-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <!-- مكتبة Uploadcare -->
+    <script>
+      // ضع المفتاح العام لخدمتك في Uploadcare
+      window.UPLOADCARE_PUBLIC_KEY = "e5eaa0ae17c2522f8800b9";
+      // (اختياري) تفعيل اللغة العربية إذا رغبت
+      // window.UPLOADCARE_LOCALE = 'ar';
+    </script>
+    <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js" defer></script>
+
+    <style media="screen">
+      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
+      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
+      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
+      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
+      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
+      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
+      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
+      @media (max-width: 600px) {
+        body, #message { margin-top: 0; background: white; box-shadow: none; }
+        body { border-top: 16px solid #ffa100; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="message">
+      <h2>Welcome</h2>
+      <h1>Firebase Hosting Setup Complete</h1>
+      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
+      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
     </div>
-  </header>
+    <p id="load">Firebase SDK Loading&hellip;</p>
 
-  <main class="container">
-    <section id="projects" class="section">
-      <h2 data-i18n="projects_h2" style="text-align:center">المشاريع</h2>
-      <div class="grid">
-        <article class="card">
-          <div class="bg"></div><div class="blob"></div>
-          <div class="card-head" data-i18n="project1_title">روابط موقعي</div>
-          <p class="muted" data-i18n="project1_desc">مواقع التجريبيه خاصه بي</p>
-          <div class="actions">
-            <a class="btn btn-blue" href="https://ahmadnhan.github.io/mysite/" target="_blank" rel="noopener" data-i18n="converter_site_link" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">موقع تحويل التاريخ</a>
-          </div>
-        </article>
-        <article class="card">
-          <div class="bg"></div><div class="blob"></div>
-          <div class="card-head" data-i18n="project2_title">تطبيقاتي</div>
-          <p class="muted" data-i18n="project2_links_desc">روابط تحميل تطبيقات</p>
-          <div class="actions">
-            <a class="btn btn-blue" href="https://www.mediafire.com/file/fekgcz3s4tl8326/app3719549-ghn059.apk/file" target="_blank" rel="noopener" data-i18n="app_converter_title" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">تطبيق تحويل تاريخ</a>
-          </div>
-        </article>
-      </div>
-    </section>
+    <!-- قسم رفع الملفات عبر Uploadcare -->
+    <div id="uploadcare-section" style="max-width:360px;margin:32px auto;padding:24px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.15);font-family:inherit;">
+      <h3 style="margin-top:0;text-align:center">رفع ملفات (Uploadcare)</h3>
+      <!-- عنصر الرفع (سيوّلد زر افتراضياً) -->
+      <input type="hidden" role="uploadcare-uploader" data-multiple="true" data-clearable="true" data-tabs="file url camera facebook gdrive dropbox instagram" />
+      <div id="uploadedFiles" style="margin-top:16px;font-size:14px;line-height:1.4;direction:ltr"></div>
+    </div>
 
-      <!-- New: file sharing card (ظهر قبل تواصل) -->
-      <section id="share" class="section">
-  <h2 style="text-align:center" data-i18n="share_h2">مشاركة ملفات عبر الموقع</h2>
-  <div class="card" id="shareCard">
-          <div class="bg"></div><div class="blob"></div>
-          <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-            <span data-i18n="share_card_title">مشاركة ملفات عبر الموقع</span>
-            <span id="cloudModeStatus" style="font-size:12px;padding:4px 8px;border-radius:16px;background:#f1f5f9;color:#333;letter-spacing:.5px">...تحقق</span>
-          </div>
-          <p class="muted" data-i18n="share_desc">يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.</p>
-          <div class="actions">
-            <label class="btn btn-blue" style="cursor:pointer"><input type="file" id="fileInput" style="display:none" accept="image/*,video/*" multiple /><span data-i18n="upload_label">رفع صور/فيديو</span></label>
-            <!-- حقل لصق الرابط تمت إزالته -->
-            <!-- زر أضف رابط تمت إزالته -->
-            
-            <div id="uploadHint" class="muted" style="display:block;margin-top:8px" data-i18n="upload_hint_empty">لم يتم اختيار ملفات أو روابط</div>
-            <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8"></div>
-            <div id="uploadProgress" style="display:none;width:100%;background:#e2e8f0;border-radius:6px;height:8px;margin-top:8px;overflow:hidden">
-              <div id="uploadBar" style="height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width .2s"></div>
-            </div>
-          </div>
-          <div id="sharePreview" class="share-preview" style="margin-top:10px"></div>
-          <div id="dropZone" style="margin-top:8px;padding:18px;border:2px dashed #94a3b8;border-radius:10px;text-align:center;font-size:14px;color:#64748b;cursor:copy;" data-i18n="dropzone_text">
-            اسحب وأفلت الصور أو الفيديو هنا
-          </div>
-          <div id="storageHelp" style="display:none;margin-top:12px;padding:12px;border:1px solid #f59e0b;background:#fffbeb;border-radius:8px;font-size:13px;line-height:1.5;color:#92400e">
-            <strong>ملاحظة:</strong> يبدو أن Firebase Storage غير مُفعل أو إعداد CORS غير مضبوط.<br>
-            1) فعّل Storage من لوحة Firebase (Build > Storage > Get started).<br>
-            2) انشر القواعد: <code>firebase deploy --only storage</code><br>
-            3) اضبط CORS عبر gsutil (bucket: <code>ahmadsite.appspot.com</code>)<br>
-            4) حدّث الصفحة (Ctrl+F5) وأعد الرفع.<br>
-            عند النجاح سيختفي هذا التنبيه.
-          </div>
-          <pre id="cloudDiag" style="direction:ltr;font-size:11px;background:#0f172a;color:#94a3b8;padding:6px;border-radius:6px;overflow:auto;max-height:140px;display:none"></pre>
-        </div>
-      </section>
-
-    <section id="contact" class="section">
-      <h2 data-i18n="contact_h2">تواصل</h2>
-      <div class="contact">
-  <p class="muted" data-i18n="contact_text">يمكنك التواصل معنا عبر البريد الإلكتروني.</p>
-        <div class="contact-info">
-          <a class="email green-btn" href="mailto:ahmad14088@gmail.com" aria-label="ahmad14088@gmail.com" title="ahmad14088@gmail.com">
-            <span class="mail-icon" aria-hidden="true">✉️</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <footer class="site-footer">
-  <div>© <span id="year"></span> <span class="site-name" data-i18n="site_name">احمد سايت</span> — <span data-i18n="rights">جميع الحقوق محفوظة</span></div>
-    </footer>
-  </main>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Dark mode toggle + persistence
-    const darkToggle = document.getElementById('darkToggle');
-    function setDark(on){
-      if(on) document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-      try{ localStorage.setItem('demo_dark', on ? '1' : '0') }catch(e){}
-      darkToggle.checked = !!on;
-    }
-    darkToggle.addEventListener('change', (e)=> setDark(e.target.checked));
-    // restore theme from storage
-    try{ if(localStorage.getItem('demo_dark') === '1') setDark(true) }catch(e){}
-
-    // Simple i18n
-    const i18n = {
-      en: {
-        tagline: 'Portfolio & links — quick view of my projects',
-        projects_h2: 'Projects',
-        project1_title: 'My site links',
-        project1_desc: 'My demo sites',
-  converter_site_link: 'Date Converter Site',
-        project2_title: 'My apps',
-  project2_desc: 'Hijri/Gregorian date converter (downloadable).',
-  project2_links_desc: 'App download links',
-        app_converter_title: 'Date converter app',
-        contact_h2: 'Contact',
-        contact_text: 'You can contact us via email.',
-        site_name: 'Ahmed Site',
-        rights: 'All rights reserved',
-        doc_title: 'Ahmed Site — Projects & Links',
-        share_h2: 'Share Files via Site',
-        share_card_title: 'Share Files via Site',
-        share_desc: 'Pick a file to share by link (demo). UI only; no real upload in this version.',
-        upload_label: 'Upload Images / Video',
-        upload_hint_empty: 'No files or links selected',
-        dropzone_text: 'Drag & drop images or video here',
-        cloud_badge_cloud: 'Cloud',
-        cloud_badge_local: 'Local',
-        msg_cloud_disabled: 'Cloud upload disabled: configure firebase-config.js',
-        msg_missing_keys: 'Missing Firebase keys: ',
-        msg_fetch_fail: 'Cloud fetch failed',
-        msg_conn_fail: 'Cloud connection error',
-        msg_disabled: 'Upload disabled: enable Firebase first (cloud only)',
-        msg_fetching: 'Fetching items from cloud...',
-        msg_no_files: 'No files selected',
-        btn_save: 'Save',
-        btn_remove: 'Remove',
-        btn_cancel: 'Cancel',
-        status_downloaded: 'Downloaded',
-        status_removed: 'Removed',
-        status_uploading: 'Uploading',
-        status_failed: 'Upload failed',
-        status_completed: 'Completed',
-        status_canceled: 'Canceled',
-        status_inline_saved: 'Saved Inline',
-        status_timeout: 'Timed out',
-        items_singular: 'item',
-        items_plural: 'items'
-      },
-      ar: {
-        tagline: 'محفظة وروابط خاصة — عرض سريع لمشروعاتي وروابطي المهمة',
-        projects_h2: 'المشاريع',
-        project1_title: 'روابط موقعي',
-        project1_desc: 'مواقع التجريبيه خاصه بي',
-  converter_site_link: 'موقع تحويل التاريخ',
-        project2_title: 'تطبيقاتي',
-  project2_desc: 'محول تواريخ هجري/ميلادي (قابل للتحميل).',
-  project2_links_desc: 'روابط تحميل تطبيقات',
-        app_converter_title: 'تطبيق تحويل تاريخ',
-        contact_h2: 'تواصل',
-  contact_text: 'يمكنك التواصل معنا عبر البريد الإلكتروني.',
-  site_name: 'احمد سايت',
-        rights: 'جميع الحقوق محفوظة',
-        doc_title: 'احمد سايت — مشاريع وروابط',
-        share_h2: 'مشاركة ملفات عبر الموقع',
-        share_card_title: 'مشاركة ملفات عبر الموقع',
-        share_desc: 'يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.',
-        upload_label: 'رفع صور/فيديو',
-        upload_hint_empty: 'لم يتم اختيار ملفات أو روابط',
-        dropzone_text: 'اسحب وأفلت الصور أو الفيديو هنا',
-        cloud_badge_cloud: 'سحابي',
-        cloud_badge_local: 'محلي',
-        msg_cloud_disabled: 'لم يتم تفعيل الرفع السحابي: أكمل إعداد firebase-config.js',
-        msg_missing_keys: 'مفاتيح Firebase ناقصة: ',
-        msg_fetch_fail: 'تعذر الجلب السحابي',
-        msg_conn_fail: 'خطأ في الاتصال بالسحابة',
-        msg_disabled: 'الرفع معطل: فعل Firebase أولاً (سحابي فقط)',
-        msg_fetching: 'جاري جلب العناصر من السحابة...',
-        msg_no_files: 'لم يتم اختيار ملفات',
-        btn_save: 'حفظ',
-        btn_remove: 'إزالة',
-        btn_cancel: 'إلغاء',
-        status_downloaded: 'تم التنزيل',
-        status_removed: 'حذف',
-        status_uploading: 'جاري الرفع',
-        status_failed: 'فشل الرفع السحابي',
-        status_completed: 'اكتمل',
-        status_canceled: 'أُلغي',
-        status_inline_saved: 'تم رفع (Inline)',
-        status_timeout: 'انتهت المهلة',
-        items_singular: 'عنصر',
-        items_plural: 'عنصر'
-      }
-    };
-    let currentLang = 'ar';
-    function t(key, fallback){ return (i18n[currentLang] && i18n[currentLang][key]) || fallback || key; }
-    const langSelect = document.getElementById('langSelect');
-    function applyLang(lang){
-      currentLang = lang;
-      document.documentElement.lang = lang;
-      document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-      document.querySelectorAll('[data-i18n]').forEach(el=>{
-        const key = el.getAttribute('data-i18n');
-        if(i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
-      });
-      if(i18n[lang] && i18n[lang].doc_title){ document.title = i18n[lang].doc_title; }
-      try{ localStorage.setItem('demo_lang', lang) }catch(e){}
-      updateCounter();
-      // إعادة تعريب شارة السحابة حسب الحالة
-      if(typeof CLOUD_ACTIVE !== 'undefined'){
-        if(CLOUD_ACTIVE) setCloudBadge('cloud_badge_cloud', true); else setCloudBadge('cloud_badge_local', false);
-      }
-    }
-    langSelect.addEventListener('change', ()=>applyLang(langSelect.value));
-    try{
-  const saved = localStorage.getItem('demo_lang');
-  if(saved){ langSelect.value = saved; currentLang = saved; }
-    }catch(e){}
-    applyLang(langSelect.value);
-
-    // Reveal animations using IntersectionObserver
-    const io = new IntersectionObserver((entries)=>{
-      entries.forEach(ent=>{
-        if(ent.isIntersecting) ent.target.classList.add('in-view');
-      });
-    },{threshold:0.12});
-    document.querySelectorAll('.card, .section').forEach(el=>{ el.classList.add('reveal'); io.observe(el) });
-    // 3D tilt
-    const tiltCards = document.querySelectorAll('.card');
-    tiltCards.forEach(card=>{
-      card.setAttribute('data-tilt','');
-      card.addEventListener('mousemove', (e)=>{
-        const r = card.getBoundingClientRect();
-        const x = (e.clientX - r.left)/r.width - 0.5;
-        const y = (e.clientY - r.top)/r.height - 0.5;
-        card.style.transform = `rotateX(${(-y*14).toFixed(2)}deg) rotateY(${(x*14).toFixed(2)}deg) translateY(-2px)`;
-      });
-      card.addEventListener('mouseleave', ()=>{
-        card.style.transform='';
-      });
-    });
-  </script>
-  
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-  <script src="firebase-config.js"></script>
-  <script>
-    // دعم رفع سحابي (Firestore + Storage) مع Fallback محلي
-    const FIREBASE_CFG = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey)? window.FIREBASE_CONFIG : null;
-    let firebaseDb = null;
-    let firebaseStorage = null;
-    let CLOUD_ACTIVE = false;
-  const FORCE_CLOUD_ONLY = true; // تفعيل وضع: رفع سحابي فقط بدون تخزين محلي
-  const cloudModeStatusEl = document.getElementById('cloudModeStatus');
-  const itemsCountEl = document.getElementById('itemsCount');
-  function setCloudBadge(key, ok){ if(!cloudModeStatusEl) return; cloudModeStatusEl.textContent = t(key,key); cloudModeStatusEl.style.background = ok? 'linear-gradient(90deg,#16a34a,#22c55e)' : '#f1f5f9'; cloudModeStatusEl.style.color = ok? '#fff':'#333'; }
-  const REQUIRED_CFG_KEYS = ['apiKey','authDomain','projectId','storageBucket'];
-  // أداة تسجيل داخل صندوق التشخيص
-  function logDiag(msg){
-    const diag = document.getElementById('cloudDiag');
-    if(!diag) return;
-    diag.style.display='block';
-    const ts = new Date().toLocaleTimeString();
-    diag.textContent = `[${ts}] ${msg}\n` + (diag.textContent||'');
-  }
-
-  try {
-      if(FIREBASE_CFG){
-        firebase.initializeApp(FIREBASE_CFG);
-        firebaseDb = firebase.firestore();
-        firebaseStorage = firebase.storage();
-        CLOUD_ACTIVE = true;
-  setCloudBadge('cloud_badge_cloud', true);
-      }
-  } catch(e){ console.warn('Firebase init failed', e); setCloudBadge('cloud_badge_local', false); }
-  if(!CLOUD_ACTIVE) setCloudBadge('cloud_badge_local', false);
-  // تشخيص مبكر لنقص الإعداد
-  window.addEventListener('DOMContentLoaded', ()=>{
-    const hint = document.getElementById('uploadHint');
-  const storageHelp = document.getElementById('storageHelp');
-    if(!FIREBASE_CFG){
-  hint && (hint.textContent = t('msg_cloud_disabled'));
-    } else {
-      const missing = REQUIRED_CFG_KEYS.filter(k=> !FIREBASE_CFG[k]);
-      if(missing.length){
-  hint && (hint.textContent = t('msg_missing_keys') + missing.join(', '));
-      }
-    }
-    // فحص صحة التخزين
-    if(firebaseStorage){
-      (async ()=>{
-        try {
-          logDiag('بدء فحص التخزين bucket='+(firebase.app().options.storageBucket||'?'));
-          const testRef = firebaseStorage.ref().child('shared/__health__/probe_'+Date.now()+'.txt');
-          await testRef.putString('health');
-          const url = await testRef.getDownloadURL();
-          logDiag('نجح فحص التخزين ✅');
-        } catch(e){
-          logDiag('فحص التخزين فشل ❌ code='+(e.code||'')+' msg='+(e.message||e));
-          if(storageHelp) storageHelp.style.display='block';
-          if(String(e.code).includes('storage/')){
-            hint && (hint.textContent = 'تعذر الوصول للتخزين: '+e.code);
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const loadEl = document.querySelector('#load');
+        // تفعيل Uploadcare بعد تحميل سكربت المكتبة (المضاف مع defer)
+        function initUploadcareWidget(){
+          if(!(window.uploadcare && uploadcare.Widget)) return;
+          const widget = uploadcare.Widget('[role=uploadcare-uploader]');
+          const listEl = document.getElementById('uploadedFiles');
+          function renderFiles(fileGroups){
+            if(!fileGroups.length){
+              listEl.innerHTML = '<em style="color:#666">لم يتم رفع ملفات بعد</em>';
+              return;
+            }
+            listEl.innerHTML = fileGroups.map(f=>`<div style="margin:4px 0;word-break:break-all">📄 <a href="${f.cdnUrl}" target="_blank" rel="noopener">${f.name || f.uuid}</a> (${(f.size/1024).toFixed(1)} KB)</div>`).join('');
           }
+          renderFiles([]);
+          widget.onUploadComplete(function(fileInfo){
+            // ملف واحد مكتمل (في حال single) أو عنصر من مجموعة
+            collected.push(fileInfo);
+            renderFiles(collected);
+          });
+          widget.onChange(function(fileGroup){
+            if(!fileGroup){
+              collected = [];
+              renderFiles(collected);
+              return;
+            }
+            // يمكن أن يكون ملف مفرد أو مجموعة ملفات
+            // fileGroup.files() تُرجع وعود (Promises)
+            Promise.resolve()
+              .then(()=> fileGroup.files ? fileGroup.files() : [fileGroup])
+              .then(promises => Promise.all(promises))
+              .then(files => {
+                collected = files;
+                renderFiles(collected);
+              });
+          });
         }
-      })();
-    } else {
-      logDiag('لا يوجد firebaseStorage (فشل تهيئة)');
-    }
-  });
-
-    // واجهة العناصر
-    const fileInput = document.getElementById('fileInput');
-    const uploadHint = document.getElementById('uploadHint');
-    const sharePreview = document.getElementById('sharePreview');
-  // const urlInput = document.getElementById('urlInput'); (محذوف)
-  // const addUrlBtn = document.getElementById('addUrlBtn'); (محذوف)
-    const dropZone = document.getElementById('dropZone');
-  // تمت إزالة زر اختبار السحابة
-
-    const STORAGE_KEY = 'demo_share_items_v1';
-    const MAX_PERSIST_BYTES = 2 * 1024 * 1024; // 2MB
-    let items = [];
-
-    function makeId(){ return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
-
-  // (مع السحابي فقط) تعطيل التخزين المحلي
-  function saveState(){ /* محذوف */ }
-  function loadState(){
-    if(!CLOUD_ACTIVE){
-  uploadHint.textContent = t('msg_disabled');
-      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-      fileInput && (fileInput.disabled = true);
-  // addUrlBtn كان يُعطل هنا (محذوف)
-      return;
-    }
-  uploadHint.textContent = t('msg_fetching');
-    try {
-      firebaseDb.collection('shared_items').orderBy('updatedAtMs','desc').limit(200).onSnapshot(snap=>{
-        const snapshotIds = [];
-        snap.forEach(doc=>{
-          const it = doc.data();
-          if(!it || !it.id) return;
-          snapshotIds.push(it.id);
-          if(!sharePreview.querySelector(`.preview-item[data-id="${it.id}"]`)){
-            renderItem(it, true); // أدخل العنصر الجديد أعلى القائمة
+        let collected = [];
+        // نحاول عدة مرات لأن السكربت defer قد لا يكون جاهزاً فوراً
+        let tries = 0;
+        const intv = setInterval(()=>{
+          tries++;
+          if(window.uploadcare && uploadcare.Widget){
+            clearInterval(intv);
+            initUploadcareWidget();
+          } else if(tries>40){
+            clearInterval(intv);
           }
-        });
-        // إزالة العناصر غير الموجودة
-        sharePreview.querySelectorAll('.preview-item').forEach(node=>{ if(!snapshotIds.includes(node.dataset.id) && !node.dataset.temp) node.remove(); });
-        // إعادة بناء items
-        items = [];
-        snap.forEach(doc=>{ const it = doc.data(); if(it && it.id) items.push(it); });
-  // إزالة رسالة تمت مزامنة
-  uploadHint.textContent = '';
-  if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} ${(items.length===1)? t('items_singular') : t('items_plural')}` : '';
-      }, err=>{
-  console.warn('snapshot err', err); uploadHint.textContent=t('msg_fetch_fail');
+        },125);
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // // The Firebase SDK is initialized and available here!
+        //
+        // firebase.auth().onAuthStateChanged(user => { });
+        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+        // firebase.firestore().doc('/foo/bar').get().then(() => { });
+        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
+        // firebase.messaging().requestPermission().then(() => { });
+        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+        // firebase.analytics(); // call to activate
+        // firebase.analytics().logEvent('tutorial_completed');
+        // firebase.performance(); // call to activate
+        //
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+        try {
+          let app = firebase.app();
+          let features = [
+            'auth', 
+            'database', 
+            'firestore',
+            'functions',
+            'messaging', 
+            'storage', 
+            'analytics', 
+            'remoteConfig',
+            'performance',
+          ].filter(feature => typeof app[feature] === 'function');
+          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
+        } catch (e) {
+          console.error(e);
+          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+        }
       });
-  } catch(e){ uploadHint.textContent=t('msg_conn_fail'); }
-  }
-
-  function renderItem(it, insertTop){
-    const wrapper = document.createElement('div');
-    wrapper.className = 'preview-item';
-    wrapper.dataset.id = it.id;
-    wrapper.style.padding='8px';
-    wrapper.style.border='1px solid rgba(0,0,0,0.06)';
-    wrapper.style.borderRadius='8px';
-    wrapper.style.marginBottom='8px';
-    wrapper.style.display='flex';
-    wrapper.style.alignItems='center';
-    wrapper.style.gap='10px';
-
-      const info = document.createElement('div'); info.style.flex='1';
-      const title = document.createElement('div'); title.textContent = it.name || it.url; title.style.fontWeight='600'; info.appendChild(title);
-
-      const url = it.dataUrl || it.url;
-  if(it.type && it.type.startsWith('image/') && url){ const img=document.createElement('img'); img.src=url; img.alt=it.name||''; img.style.maxWidth='120px'; img.style.borderRadius='6px'; img.style.objectFit='cover'; img.style.cursor='pointer'; img.onload=()=>{ try{ logDiag('صورة محملة '+(it.name||it.id)); }catch(_){} }; img.onerror=()=>{ img.style.border='2px solid #dc2626'; img.title='فشل تحميل الصورة'; try{ logDiag('فشل تحميل الصورة '+(it.name||it.id)); }catch(_){} }; img.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(img); }
-      else if(it.type && it.type.startsWith('video/') && url){ const vid=document.createElement('video'); vid.src=url; vid.controls=true; vid.style.maxWidth='160px'; vid.style.borderRadius='6px'; wrapper.appendChild(vid); }
-      else { const fileIcon=document.createElement('div'); fileIcon.textContent='📄'; fileIcon.style.fontSize='40px'; fileIcon.style.cursor='pointer'; if(url) fileIcon.onclick=()=> window.open(url,'_blank','noopener'); wrapper.appendChild(fileIcon); }
-
-      const actions=document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
-  const saveBtn=document.createElement('button'); saveBtn.textContent=t('btn_save','حفظ'); saveBtn.className='btn';
-  saveBtn.onclick=async ()=>{ if(!url){ return;} try{ const resp=await fetch(url); const blob=await resp.blob(); const obj=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=obj; a.download=it.name||'file'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj); uploadHint.textContent=t('status_downloaded'); }catch(e){ window.open(url,'_blank','noopener'); } };
-  const removeBtn=document.createElement('button'); removeBtn.textContent=t('btn_remove','إزالة'); removeBtn.className='btn'; removeBtn.onclick=()=>{ wrapper.remove(); items = items.filter(x=> x.id !== it.id); saveState(); if(firebaseDb) firebaseDb.collection('shared_items').doc(it.id).delete().catch(()=>{}); if(firebaseStorage && it.storagePath){ firebaseStorage.ref().child(it.storagePath).delete().catch(()=>{}); } uploadHint.textContent=t('status_removed'); updateCounter(); };
-      actions.appendChild(saveBtn); actions.appendChild(removeBtn);
-
-      wrapper.appendChild(info); wrapper.appendChild(actions);
-      if(insertTop && sharePreview.firstChild){
-        sharePreview.insertBefore(wrapper, sharePreview.firstChild);
-      } else {
-        sharePreview.appendChild(wrapper);
-      }
-  try{ logDiag('renderItem '+it.id+' kind='+(it.kind||'file')+' type='+(it.type||'')); }catch(_){ }
-    }
-
-  async function saveMetaCloud(it){
-    if(!firebaseDb) return;
-    try {
-      await firebaseDb.collection('shared_items').doc(it.id).set(Object.assign({}, it, {
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAtMs: Date.now()
-      }));
-    } catch(e){ console.warn('save meta failed', e); const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Save meta failed: '+(e.message||e); } }
-  }
-  function showProgress(){ const c=document.getElementById('uploadProgress'); if(c) c.style.display='block'; }
-  function setProgress(p){ const b=document.getElementById('uploadBar'); if(b) b.style.width = (Math.min(100, Math.max(0, p*100))).toFixed(1)+'%'; }
-  function hideProgress(){ const c=document.getElementById('uploadProgress'); if(c) c.style.display='none'; setProgress(0); }
-  async function uploadFileToCloud(file, onProgress){
-    if(!firebaseStorage) throw new Error('No storage');
-    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
-    const id = makeId();
-    const path = `shared/${id}_${safeName}`;
-    const ref = firebaseStorage.ref().child(path);
-    return new Promise((resolve, reject)=>{
-      const task = ref.put(file);
-      task.on('state_changed', snap=>{ if(onProgress && snap.totalBytes) onProgress(snap.bytesTransferred / snap.totalBytes); }, err=> reject(err), async ()=>{ try{ const url = await task.snapshot.ref.getDownloadURL(); resolve({ url, path, id }); } catch(e){ reject(e); } });
-    });
-  }
-  function updateCounter(){ if(itemsCountEl) itemsCountEl.textContent = items.length>0? `${items.length} ${(items.length===1)? t('items_singular') : t('items_plural')}` : ''; }
-  function createUploadingPlaceholder(file){
-    const id = 'temp-'+makeId();
-    const wrapper = document.createElement('div');
-    wrapper.className='preview-item';
-    wrapper.dataset.id = id;
-    wrapper.dataset.temp = '1';
-    wrapper.style.cssText='padding:8px;border:1px dashed #64748b;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:10px;opacity:.7;background:rgba(148,163,184,0.08)';
-    // thumb
-    if(file && file.type && file.type.startsWith('image/')){
-      const img=document.createElement('img'); img.style.maxWidth='90px'; img.style.borderRadius='6px'; img.style.objectFit='cover'; img.alt='preview';
-      const url = URL.createObjectURL(file); img.src=url; wrapper.dataset.objUrl=url; wrapper.appendChild(img);
-    } else if(file && file.type && file.type.startsWith('video/')) {
-      const icon=document.createElement('div'); icon.textContent = '🎬'; icon.style.fontSize='40px'; wrapper.appendChild(icon);
-    } else {
-      const icon=document.createElement('div'); icon.textContent = '⏳'; icon.style.fontSize='40px'; wrapper.appendChild(icon);
-    }
-  const info=document.createElement('div'); info.style.flex='1';
-  info.innerHTML = `<div style="font-weight:600;font-size:14px;direction:ltr">${file.name}</div><div class="up-status" style="font-size:12px;color:#64748b">${t('status_uploading','جاري الرفع')} 0%</div>`;
-    wrapper.appendChild(info);
-    const prog=document.createElement('div'); prog.style.cssText='width:80px;height:6px;border-radius:4px;background:#334155;overflow:hidden';
-    const bar=document.createElement('div'); bar.style.cssText='height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width .2s'; prog.appendChild(bar); wrapper.appendChild(prog);
-  const cancelBtn=document.createElement('button'); cancelBtn.textContent=t('btn_cancel','إلغاء'); cancelBtn.className='btn'; cancelBtn.style.padding='4px 10px'; cancelBtn.style.fontSize='11px'; wrapper.appendChild(cancelBtn);
-    wrapper._bar = bar;
-  wrapper._statusEl = info.querySelector('.up-status');
-  wrapper._cancel = cancelBtn;
-    if(sharePreview.firstChild) sharePreview.insertBefore(wrapper, sharePreview.firstChild); else sharePreview.appendChild(wrapper);
-  return {id, el:wrapper, setProgress:(p)=>{ bar.style.width=(p*100).toFixed(1)+'%'; if(wrapper._statusEl) wrapper._statusEl.textContent = t('status_uploading','جاري الرفع')+' '+(p*100).toFixed(0)+'%'; }, setStatus:(tt)=>{ if(wrapper._statusEl) wrapper._statusEl.textContent=tt; }};
-  }
-  function addAndPersistItem(obj){
-  if(!CLOUD_ACTIVE){ uploadHint.textContent=t('msg_disabled'); return; }
-    const it = Object.assign({id: makeId()}, obj);
-    // عرض تفاؤلي
-    items.unshift(it);
-  renderItem(it, true);
-    updateCounter();
-    saveMetaCloud(it);
-  try{ logDiag('addAndPersistItem '+it.id+' name='+(it.name||'')); }catch(_){ }
-  }
-
-  // تخزين صورة صغيرة داخل Firestore مباشرة (كحل مؤقت إذا فشل التخزين السحابي بسبب CORS)
-  async function fallbackInlineImage(file, placeholder){
-    try {
-      if(!firebaseDb) return false;
-      if(!(file.type||'').startsWith('image/')) return false;
-      if(file.size > 160*1024) { logDiag('تجاوز الحجم عن حد inline'); return false; }
-      const fr = new FileReader();
-      const dataUrl = await new Promise((res,rej)=>{ fr.onerror=()=>rej(fr.error); fr.onload=()=>res(fr.result); fr.readAsDataURL(file); });
-      const doc = { kind:'file-inline', name:file.name, type:file.type, dataUrl, inline:true };
-      addAndPersistItem(doc);
-      placeholder && placeholder.setStatus('حُفظت Inline');
-  uploadHint.textContent=t('status_inline_saved');
-      logDiag('Inline save for '+file.name+' size='+file.size);
-      return true;
-    } catch(e){ logDiag('فشل inline: '+(e.message||e)); return false; }
-  }
-  function handleFiles(files){
-  if(!files || !files.length){ uploadHint.textContent=t('msg_no_files'); return; }
-  if(!CLOUD_ACTIVE){ uploadHint.textContent=t('msg_disabled'); return; }
-    const accepted = Array.from(files).filter(f=> /^(image|video)\//.test(f.type));
-    const rejected = Array.from(files).filter(f=> !/^(image|video)\//.test(f.type));
-    if(rejected.length){
-  uploadHint.textContent = (currentLang==='ar'? 'تم تجاهل ':'Ignored ') + rejected.length + (currentLang==='ar'? ' ملف (يسمح فقط صور وفيديو)':' file(s) (only images/video allowed)');
-    }
-    accepted.forEach(async f=>{
-      const placeholder = createUploadingPlaceholder(f);
-      let canceled = false;
-      let taskRef = null;
-      let timedOut = false;
-      const startTime = Date.now();
-      placeholder.el._cancel.addEventListener('click', ()=>{ if(taskRef){ try{ taskRef.cancel(); }catch(_){} } canceled=true; placeholder.setStatus('أُلغي'); placeholder.el.style.opacity='0.4'; });
-      try {
-  uploadHint.textContent = (currentLang==='ar'? 'رفع ':'Uploading ') + f.name + '...';
-        const safeName = f.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
-        const id = makeId();
-        const path = `shared/${id}_${safeName}`;
-        const ref = firebaseStorage.ref().child(path);
-        const task = ref.put(f);
-        taskRef = task;
-  const timeoutMs = 180000; // 180 ثانية مهلة (تمديد للتشخيص)
-        const timeout = setTimeout(()=>{ if(!canceled){ timedOut = true; try{ task.cancel(); }catch(_){} placeholder.setStatus('انتهت المهلة'); } }, timeoutMs);
-        let firstSnapLogged = false;
-        task.on('state_changed', snap=>{
-          if(!firstSnapLogged){
-            logDiag(`بدأ الرفع ${f.name} bytesTotal=${snap.totalBytes}`);
-            firstSnapLogged = true;
-          }
-          if(snap.totalBytes){
-            const p = snap.bytesTransferred / snap.totalBytes;
-            placeholder.setProgress(p);
-            if(snap.bytesTransferred>0){
-              logDiag(`تقدم ${f.name}: ${snap.bytesTransferred}/${snap.totalBytes}`);
-            }
-          }
-        }, err=>{
-          clearTimeout(timeout);
-          if(canceled) return;
-          console.warn('upload error', err);
-          if(err && err.code === 'storage/canceled'){
-            if(timedOut){
-              placeholder.setStatus(t('status_timeout'));
-            } else if(canceled){
-              placeholder.setStatus(t('status_canceled'));
-            } else {
-              placeholder.setStatus(t('status_canceled'));
-            }
-          } else {
-            placeholder.setStatus(t('status_failed')+ (err.code?(': '+err.code):''));
-          }
-          uploadHint.textContent=t('status_failed');
-          const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Upload error: '+(err.message||err); }
-          const took = ((Date.now()-startTime)/1000).toFixed(1);
-          logDiag(`Upload fail ${f.name} after ${took}s code=${err && err.code}`);
-          if(/CORS|404|Failed/i.test(err.message||'')){ const sh=document.getElementById('storageHelp'); if(sh) sh.style.display='block'; }
-          // محاولة حفظ Inline إذا كان سبب الفشل CORS أو منع تخزين
-          if((err && (String(err.message).includes('CORS') || String(err.code).includes('storage/unknown') ))){
-            fallbackInlineImage(f, placeholder);
-          }
-        }, async ()=>{
-          clearTimeout(timeout);
-          if(canceled) return;
-          try {
-            const url = await task.snapshot.ref.getDownloadURL();
-            const meta = {kind:'file', name:f.name, url, type:f.type||'application/octet-stream', storagePath:path, id};
-            addAndPersistItem(meta);
-            placeholder.setStatus(t('status_completed'));
-            setTimeout(()=>{ if(placeholder.el && placeholder.el.parentNode){ if(placeholder.el.dataset.objUrl){ try{ URL.revokeObjectURL(placeholder.el.dataset.objUrl); }catch(_e){} } placeholder.el.remove(); } }, 400);
-            uploadHint.textContent = (currentLang==='ar'? 'تم رفع ':'Uploaded ') + f.name;
-            const took = ((Date.now()-startTime)/1000).toFixed(1);
-            logDiag(`Upload ok ${f.name} in ${took}s size=${f.size}`);
-          } catch(e){ console.warn('post-url error', e); placeholder.setStatus('خطأ بالرابط'); }
-        });
-  } catch(e){ console.warn('cloud upload failed', e); uploadHint.textContent=t('status_failed'); const diag=document.getElementById('cloudDiag'); if(diag){ diag.style.display='block'; diag.textContent='Cloud upload failed: '+(e.message||e); } }
-    });
-  }
-
-  fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
-
-  // Drag & Drop
-  if(dropZone){
-    ;['dragenter','dragover'].forEach(ev=> dropZone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); dropZone.style.background='rgba(14,165,233,0.08)'; }));
-    ;['dragleave','drop'].forEach(ev=> dropZone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); dropZone.style.background=''; }));
-    dropZone.addEventListener('drop', e=>{ const dt=e.dataTransfer; if(dt && dt.files) handleFiles(dt.files); });
-  }
-  // مستمع addUrlBtn محذوف
-  // مراقبة حالة الشبكة (مجدداً)
-  window.addEventListener('online', ()=> logDiag('ONLINE'));
-  window.addEventListener('offline', ()=> logDiag('OFFLINE'));
-
-  // تحميل (لن يعرض محلي إذا FORCE_CLOUD_ONLY مفعل بدون سحابة)
-  loadState();
-  </script>
-
-</body>
+    </script>
+  </body>
 </html>
