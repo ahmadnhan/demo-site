@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "mysite-860da",
+    "site": "ahmadsite",
     "public": "public",
     "ignore": [
       "firebase.json",
