@@ -61,6 +61,8 @@
       <h3 style="margin-top:0;text-align:center">رفع ملفات (Uploadcare)</h3>
       <!-- عنصر الرفع (سيوّلد زر افتراضياً) -->
       <input type="hidden" role="uploadcare-uploader" data-multiple="true" data-clearable="true" data-tabs="file url camera facebook gdrive dropbox instagram" />
+  <!-- عنصر رفع إضافي بالمفتاح داخل الخاصية حسب طلبك -->
+  <input type="hidden" role="uploadcare-uploader" data-public-key="e5eaa0ae17c2522f8800b9" data-multiple="true" data-clearable="true" />
       <div id="uploadedFiles" style="margin-top:16px;font-size:14px;line-height:1.4;direction:ltr"></div>
     </div>
 
@@ -70,39 +72,47 @@
         // تفعيل Uploadcare بعد تحميل سكربت المكتبة (المضاف مع defer)
         function initUploadcareWidget(){
           if(!(window.uploadcare && uploadcare.Widget)) return;
-          const widget = uploadcare.Widget('[role=uploadcare-uploader]');
+          const widgets = Array.from(document.querySelectorAll('[role=uploadcare-uploader]')).map(n=>uploadcare.Widget(n));
           const listEl = document.getElementById('uploadedFiles');
-          function renderFiles(fileGroups){
-            if(!fileGroups.length){
+          const widgetFiles = new Map(); // widget -> files[]
+          function renderFiles(allFiles){
+            if(!allFiles.length){
               listEl.innerHTML = '<em style="color:#666">لم يتم رفع ملفات بعد</em>';
               return;
             }
-            listEl.innerHTML = fileGroups.map(f=>`<div style="margin:4px 0;word-break:break-all">📄 <a href="${f.cdnUrl}" target="_blank" rel="noopener">${f.name || f.uuid}</a> (${(f.size/1024).toFixed(1)} KB)</div>`).join('');
+            listEl.innerHTML = allFiles.map(f=>`<div style=\"margin:4px 0;word-break:break-all\">📄 <a href=\"${f.cdnUrl}\" target=\"_blank\" rel=\"noopener\">${f.name || f.uuid}</a> (${(f.size/1024).toFixed(1)} KB)</div>`).join('');
           }
           renderFiles([]);
-          widget.onUploadComplete(function(fileInfo){
-            // ملف واحد مكتمل (في حال single) أو عنصر من مجموعة
-            collected.push(fileInfo);
-            renderFiles(collected);
-          });
-          widget.onChange(function(fileGroup){
-            if(!fileGroup){
-              collected = [];
-              renderFiles(collected);
-              return;
+          function recompute(){
+            const merged = Array.from(widgetFiles.values()).flat();
+            // إزالة التكرارات حسب uuid
+            const seen = new Set();
+            const unique = [];
+            for(const f of merged){
+              if(f && !seen.has(f.uuid)){
+                seen.add(f.uuid);
+                unique.push(f);
+              }
             }
-            // يمكن أن يكون ملف مفرد أو مجموعة ملفات
-            // fileGroup.files() تُرجع وعود (Promises)
-            Promise.resolve()
-              .then(()=> fileGroup.files ? fileGroup.files() : [fileGroup])
-              .then(promises => Promise.all(promises))
-              .then(files => {
-                collected = files;
-                renderFiles(collected);
-              });
+            renderFiles(unique);
+          }
+          widgets.forEach(w=>{
+            w.onChange(function(fileGroup){
+              if(!fileGroup){
+                widgetFiles.set(w, []);
+                return recompute();
+              }
+              Promise.resolve()
+                .then(()=> fileGroup.files ? fileGroup.files() : [fileGroup])
+                .then(promises => Promise.all(promises))
+                .then(files => {
+                  widgetFiles.set(w, files);
+                  recompute();
+                });
+            });
           });
         }
-        let collected = [];
+        let collected = []; // لم تعد تستخدم مباشرة، أبقيناها لو كان هناك كود يعتمدها مستقبلاً
         // نحاول عدة مرات لأن السكربت defer قد لا يكون جاهزاً فوراً
         let tries = 0;
         const intv = setInterval(()=>{
