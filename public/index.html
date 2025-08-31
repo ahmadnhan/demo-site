@@ -67,7 +67,7 @@
           </div>
           <p class="muted" data-i18n="share_desc">يمكنك اختيار ملف لمشاركته عبر رابط (تجريبي). هذه الواجهة توضيحية فقط ولا ترفع الملف فعليًا في هذا الإصدار.</p>
           <div class="actions">
-            <label class="btn btn-blue" style="cursor:pointer"><input type="file" id="fileInput" style="display:none" accept="image/*,video/*" multiple /><span data-i18n="upload_label">رفع صور/فيديو</span></label>
+            <button id="openReactUploaderBtn" class="btn btn-blue" type="button" style="cursor:pointer" data-i18n="upload_label">رفع صور/فيديو</button>
             <div id="uploadHint" class="muted" style="display:block;margin-top:8px" data-i18n="upload_hint_empty">لم يتم اختيار ملفات أو روابط</div>
             <div id="itemsCount" class="muted" style="display:block;margin-top:4px;font-size:12px;opacity:.8"></div>
             <div id="uploadProgress" style="display:none;width:100%;background:#e2e8f0;border-radius:6px;height:8px;margin-top:8px;overflow:hidden">
@@ -245,6 +245,13 @@
       });
     }
     fileInput && fileInput.addEventListener('change', e=> handleFiles(e.target.files));
+    // افتح صفحة الرفع React بدلاً من رفع محلي عند الضغط على الزر
+    const openReactBtn = document.getElementById('openReactUploaderBtn');
+    if(openReactBtn){
+      openReactBtn.addEventListener('click', ()=>{
+        window.location.href = '/uploader/';
+      });
+    }
     if(dropZone){ ['dragenter','dragover'].forEach(ev=> dropZone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); dropZone.style.background='rgba(14,165,233,0.08)'; })); ['dragleave','drop'].forEach(ev=> dropZone.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); dropZone.style.background=''; })); dropZone.addEventListener('drop', e=>{ const dt=e.dataTransfer; if(dt && dt.files) handleFiles(dt.files); }); }
     window.addEventListener('online', ()=> logDiag('ONLINE')); window.addEventListener('offline', ()=> logDiag('OFFLINE'));
     loadState();
